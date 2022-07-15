@@ -12,8 +12,7 @@ rotation:={1:0,2:1,3:2,4:3}
 ;	Path: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3
 ;	Key	: Settings
 RegRead, StuckRects3, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3, Settings
-CurrRegVal_p1 := SubStr(StuckRects3, 1, 42)
-CurrRegVal_p2 := SubStr(StuckRects3, 43)
+CurrRegVal_p1 := SubStr(StuckRects3, 1, 42), CurrRegVal_p2 := SubStr(StuckRects3, 43)
 
 TaskbarPos := new dict()
 TaskbarPos.map(["left", "top", "right", "bottom"],["30000000FEFFFFFF7AF40000000000003C00000030","30000000FEFFFFFF7AF40000010000003C00000030","30000000FEFFFFFF7AF40000020000003C00000030","30000000FEFFFFFF7AF40000030000003C00000030"])
@@ -38,8 +37,8 @@ If(NewBinaryRegValue)
 	RegWrite, REG_BINARY, HKCU, Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3, Settings, % NewBinaryRegValue
 	If(!ErrorLevel) {
 		If(A_IsAdmin) {
-			RunWaitOne("taskkill /f /im explorer.exe")
-			RunWaitOne("start explorer.exe")
+			SilentRun("taskkill /f /im explorer.exe")
+			SilentRun("start explorer.exe")
 			If(!ErrorLevel)
 				Msgbox, % "Your taskbar was successfully moved!"
 		}
@@ -49,6 +48,16 @@ If(NewBinaryRegValue)
 		msgbox, % "Something went terribly wrong!`nPlease check your registry on errors."
 	}
 }
+
+SilentRun(cmd)
+{
+    exec := ComObjCreate("WScript.Shell").Exec(ComSpec " /c " cmd)
+    return, % exec.StdOut.ReadAll()
+}
+
+; Defining the variables in this script
+SysGet, display, MonitorName
+rotation:={1:0,2:1,3:2,4:3}
 
 ; Hotkey for Screen Orientation Switch
 ^!w::
@@ -61,12 +70,6 @@ If(NewBinaryRegValue)
 		sResult := "Could not retrieve the current screen orientation!`nFound: " cOri
 	msgbox, % sResult
 Return
-
-RunWaitOne(command) {
-    shell := ComObjCreate("WScript.Shell")
-    exec := shell.Exec(ComSpec " /c " command)
-    return exec.StdOut.ReadAll()
-}
 
 ;https://www.autohotkey.com/boards/viewtopic.php?t=77664€
 screenRes_Set(WxHaF, Disp:=0, orient:=0)
