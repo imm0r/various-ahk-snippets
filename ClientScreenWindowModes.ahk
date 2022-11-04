@@ -1,7 +1,7 @@
 ;note: this is based on the AHK source code, another approach is to use GetCaretPos
 q:: ;recreate A_CaretX and A_CaretY built-in variables
 
-hwnd := GetHwnd( "L2R(64)", "dnplayer.exe" )
+hwnd := GetHwnd( "LDPlayer", "dnplayer.exe" )
 
 VarSetCapacity(GUITHREADINFO, A_PtrSize=8?72:48, 0)
 NumPut(A_PtrSize=8?72:48, &GUITHREADINFO, 0, "UInt") ;cbSize
@@ -34,7 +34,7 @@ return
 
 w:: ;test converting between coordinate modes
 
-hwnd := GetHwnd( "L2R(64)", "dnplayer.exe" )
+hwnd := GetHwnd( "LDPlayer", "dnplayer.exe" )
 
 vOutput := ""
 vList := "Client,Screen,Window"

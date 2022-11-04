@@ -2,7 +2,7 @@
 #SingleInstance force
 SetWorkingDir %A_ScriptDir%
 
-#Include Lib\dict.ahk
+#Include <dict>
 
 ;Windows11 Taskbar Location (registry binary value)
 ;	Path: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3

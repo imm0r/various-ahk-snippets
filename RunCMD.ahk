@@ -41,6 +41,6 @@ Global A_Args ; Based on StdOutToVar.ahk by Sean @ autohotkey.com/board/topic/15
 , DllCall("CloseHandle", "Ptr",hPipeR)
 
 , ErrorLevel := ExitCode
-
+msgbox, % sOutput
 Return sOutput  
 }

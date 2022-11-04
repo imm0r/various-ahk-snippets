@@ -8,19 +8,20 @@ pToken := GdipStartup()
 
 textrect := [], results := []
 
-hwnd := GetHwnd( "L2R(64)", "dnplayer.exe" )
+hwnd := GetHwnd( "LDPlayer", "dnplayer.exe" )
 ControlGet, MainClassHwnd, hwnd,, SubWin1
+
 
 Physical_Monitor := GetPhysicalMonitorsFromHMONITOR()
 
 ChildPointStruct := []
-ChildPointStruct := GetChildHWND(hwnd, "SubWin1")
+ChildPointStruct := GetChildHWND(MainClassHwnd, "SubWin1")
 msgbox, % "Child X: " ChildPointStruct.x
 msgbox, % "Child X: " ChildPointStruct%x% "`nChild Y: " ChildPointStruct%y%
 msgbox, % "Child X: " ChildPointStruct[x]
 msgbox, % "Child X: " ChildPointStruct["x"]
 
-pBitmap := Gdip_BitmapFromScreen(hBitmap, "hwnd:" MainClassHwnd)
+pBitmap := Gdip_BitmapFromScreen(hBitmap, MainClassHwnd)
 
 
 GdipGetImageDimensions(pBitmap, Width, Height)
@@ -34,7 +35,7 @@ Gui, Show, x24 y24
 
 pIRandomAccessStream := HBitmapToRandomAccessStream(hBitmap)
 
-text := ocr(pIRandomAccessStream, "FirstFromAvailableLanguages")
+text := ocr(pIRandomAccessStream, "")
 Loop, parse, text, `n, `r
 	NrOfLines := A_Index
 Loop, parse, text, `n, `r
@@ -445,8 +446,6 @@ ocr(file, lang := "FirstFromAvailableLanguages")
    ObjRelease(LinesList)
    return text
 }
-
-
 
 CreateClass(string, interface, ByRef Class)
 {

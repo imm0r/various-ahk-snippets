@@ -1,6 +1,3 @@
-; Retrieve the HWND of a specific process
-; Msgbox, % GetHwnd( "L2R(64)", "dnplayer.exe" )
-
 GetHwnd( process, exename )
 {
 	IfWinExist, %process%

@@ -2,11 +2,11 @@
 SetBatchLines, -1
 Return
 
-Esc:: ExitApp
+msgbox, % "HWND: " GetHwnd( "LDPlayer", "dnplayer.exe" )
 
-^X::
+F6::
 textrect := [], results := []
-L2RhWnd := GetHwnd( "L2R(64)", "dnplayer.exe" )
+L2RhWnd := GetHwnd( "LDPlayer", "dnplayer.exe" )
 
 getClientRect(L2RhWnd, tX, tY, tW, tH)
 chatWidth := tW / 2.9 - 130
@@ -49,6 +49,8 @@ F10::
 	reload
 return
 
+Esc::ExitApp
+
 HBitmapFromScreen(X, Y, W, H) {
    HDC := DllCall("GetDC", "Ptr", 0, "UPtr")
    HBM := DllCall("CreateCompatibleBitmap", "Ptr", HDC, "Int", W, "Int", H, "UPtr")
@@ -84,7 +86,8 @@ HBitmapToRandomAccessStream(hBitmap) {
    Return pIRandomAccessStream
 }
 
-getClientRect(hwnd=0, byRef tX="", byRef tY="", byRef tW="", byRef tH="") {
+getClientRect(hwnd=0, byRef tX="", byRef tY="", byRef tW="", byRef tH="")
+{
 	hwnd:=hwnd ? hwnd : WinExist()    ; use LFW if no hwnd given
 	VarSetCapacity(rt, 16)            ; alloc. mem. for RECT struc.
 	VarSetCapacity(pt, 8, 0)          ; alloc. mem. for POINT struc.
