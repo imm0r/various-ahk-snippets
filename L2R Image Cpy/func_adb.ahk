@@ -1,3 +1,32 @@
+adb_shell( DEVICE := 0, CMD = "", PARAMS := "" )
+{
+	global oLDP_Basics
+	If FileExist( oLDP_Basics.adb )
+	{
+		If( DEVICE )
+			shellStr := oLDP_Basics.adb . " -s " . DEVICE . " shell " . CMD . " " . PARAMS
+		else
+			shellStr := oLDP_Basics.adb . " shell " . CMD . " " . PARAMS
+		return stdCmd( shellStr )
+	}
+	return, -1
+}
+
+adb_input( action, xPos1, yPos1, xPos2="", yPos2="", duration="" )
+{
+	If( FileExist( oLDP_Basics.adb ) && oADB.isConnected ) {
+        txPos2 := xPos2 != "" ? " " . xPos2 : ""
+        tyPos2 := yPos2 != "" ? " " . yPos2 : ""
+        tduration := duration != "" ? " " . duration : ""
+        position := xPos1 . " " . yPos1 . txPos2 . tyPos2 . tduration
+		tInput := "input " . action . " " . position
+        tRet := adb_shell( oADB.device, "input " . action, position)
+		if (tRet)
+			return tInput
+		return 1
+	}
+}
+
 adb_GetInstanceDetails(PlayerID)
 {
 	global oLDP_Basics		
@@ -7,10 +36,10 @@ adb_GetInstanceDetails(PlayerID)
 	{
 		If A_LoopField is not space
 		{
-				oLDP := []
-				oLDP := strSplit(A_LoopField, ",")
-				if (oLDP[1] = PlayerID)
-					return Object("id", oLDP[1], "winTitle", oLDP[2], "topHwnd", FHex( oLDP[3] ), "bindHwnd", FHex( oLDP[4] ), "isRunning", oLDP[5] ? 1 : 0, "mainPid", oLDP[6], "vboxPid", oLDP[7], "rHeight", oLDP[8], "rWidth", oLDP[9], "rDPI", oLDP[10])
+			oLDP := []
+			oLDP := strSplit(A_LoopField, ",")
+			if (oLDP[1] = PlayerID)
+				return Object("id", oLDP[1], "winTitle", oLDP[2], "topHwnd", FHex( oLDP[3] ), "bindHwnd", FHex( oLDP[4] ), "isRunning", oLDP[5] ? 1 : 0, "mainPid", oLDP[6], "vboxPid", oLDP[7], "rHeight", oLDP[8], "rWidth", oLDP[9], "rDPI", oLDP[10])
 		}
 	}
 	return 0
@@ -57,24 +86,6 @@ adb_isConnectedToDevice(device)
 		}
 	}
 	return, false
-}
-
-
-; ===============================================================================================
-
-
-adb_shell( DEVICE := 0, CMD = "", PARAMS := "" )
-{
-	global oLDP_Basics
-	If FileExist( oLDP_Basics.adb )
-	{
-		If( DEVICE )
-			shellStr := oLDP_Basics.adb . " -s " . DEVICE . " shell " . CMD . " " . PARAMS
-		else
-			shellStr := oLDP_Basics.adb . " shell " . CMD . " " . PARAMS
-		return stdCmd( shellStr )
-	}
-	return, -1
 }
 
 adb_isInstalled(package)
@@ -125,19 +136,4 @@ adb_runApp( PACKAGENAME, ACTIVITY )
 	If FileExist( oLDP_Basics.adb )
 		If( !_ADB_GETPIDOFPACKAGE( PACKAGENAME ) )
 			return adb_shell( oADB.device, "am start -n", PACKAGENAME . "/" . ACTIVITY )
-}
-
-adb_input( action, xPos1, yPos1, xPos2="", yPos2="", duration="" )
-{
-	If( FileExist( oLDP_Basics.adb ) && oADB.isConnected ) {
-        txPos2 := xPos2 != "" ? " " . xPos2 : ""
-        tyPos2 := yPos2 != "" ? " " . yPos2 : ""
-        tduration := duration != "" ? " " . duration : ""
-        position := xPos1 . " " . yPos1 . txPos2 . tyPos2 . tduration
-		tInput := "input " . action . " " . position
-        tRet := adb_shell( oADB.device, "input " . action, position)
-		if (tRet)
-			return tInput
-		return 1
-	}
 }
