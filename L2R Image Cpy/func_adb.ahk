@@ -141,3 +141,19 @@ adb_input( action, xPos1, yPos1, xPos2="", yPos2="", duration="" )
 		return 1
 	}
 }
+
+adb_screenshot(tDir := "", fName := "")
+{
+	If (FileExist(oLDP_Basics.adb) && FileExist(oLDP_Basics.dos2unix) && oADB.isConnected)
+	{
+        tDir := tDir != "" ? tDir : A_ScriptDir . "\misc\img\"
+        fName := fName != "" ? fName : A_NOW . "_pulled-SS.png"
+		tCmd := "screencap -p | "" oLDP_Basics.dos2unix """
+		tParam := "-f > "" tDir . fName """
+		tTest := tCmd . " " . tParam
+		tRes := adb_shell(oADB.device, tCmd, tParam)
+		if (tDir . fName)
+			return tDir . fName
+		return 0
+	}
+}

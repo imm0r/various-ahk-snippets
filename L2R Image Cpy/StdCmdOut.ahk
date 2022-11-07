@@ -1,9 +1,9 @@
 DetectHiddenWindows,On
-Run,%ComSpec% /k,,Hide UseErrorLevel,pid
+Run, %ComSpec% /k, ,Hide UseErrorLevel, pid
 if not ErrorLevel
 {
     while !WinExist("ahk_pid" pid)
-    Sleep,10
+        Sleep,10
     DllCall("AttachConsole","UInt",pid)
 }
 CMD=ping -n 10 8.8.8.8

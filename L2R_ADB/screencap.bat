@@ -1,0 +1,1 @@
+cmd H:\LDPlayer64.v9.0\adb.exe -s emulator-5554 shell screencap -p | "C:\Users\m0nsu\OneDrive\Desktop\ahk\L2R_ADB\misc\dos2unix.exe" -f > "C:\Users\m0nsu\OneDrive\Desktop\ahk\L2R_ADB\misc\img\2022110424351_pulled-SS.png"

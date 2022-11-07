@@ -1,5 +1,5 @@
 CmdGui() {
-	Gui, Cmd:New, +LabelCmd +HwndCmdHwnd +Resize, Console
+	Gui, Cmd:New, +LabelCmd +HwndCmdHwnd, Console
 	Gui, Font, s11, Arial New
 	Gui, Add, Button, gExample1 x5 y5, get basics
 	Gui, Add, Button, gExample2 x+0, get ID
@@ -15,22 +15,25 @@ CmdGui() {
         else
             strDDL_coordinates .= strDDL_entries[A_Index]
     }
-    Gui, Add, DropDownList, gApplyDLLChoice vDLLInputChoice x+15 y7 w110, %strDDL_coordinates%
+    Gui, Add, DropDownList, gApplyDLLChoice vDLLInputChoice x+73 y7 w110, %strDDL_coordinates%
 	Gui, Add, Button, gExample7 x+5 y5, Click on selection!
 
-    Gui, Add, Button, gBtn_AutoQuest vLbl_AutoQuest x+5, AQ AutoSkip
+    Gui, Add, Pic, x5 y425 w425 h-1 vLABPic +Border, 
+
+    Gui, Add, Button, gBtn_AutoQuest vLbl_AutoQuest x5 y40, AQ AutoSkip
+    Gui, Add, Button, gBtn_LiveAppBroadcasting vLbl_LiveAppBroadcasting x697 y40 R2 w110, Live App Broadcasting
 
 	Gui, Font, s12, Verdana New
-	gui, add, Text, x10, enter your own ADB commands here:
+	gui, add, Text, x9 y75, enter your own ADB commands here:
 	Gui, Font, s11, Verdana New
-	Gui, Add, Edit, vCmdInput +HwndCmdInputHwnd x8 y65 w800 r1 border
+	Gui, Add, Edit, vCmdInput +HwndCmdInputHwnd x7 y+2 w800 r1 border
 	Gui, Font, s12, Verdana New
-	gui, add, Text, x10, ADB returned the following results:
+	gui, add, Text, x10 y+5, ADB returned the following results:
 	Gui, Font, s11, Verdana New
-	Gui, Add, Edit, vCmdOutput +HwndCmdOutputHwnd x8 y120 w800 h250 border readonly
-	Gui, Show
+	Gui, Add, Edit, vCmdOutput +HwndCmdOutputHwnd x7 y+2 w800 h250 border readonly
+    Gui, Show, w815, LDP+ADB
 	
-	;GuiControl, Focus, CmdInput
+	GuiControl, Focus, CmdInput
 }
 
 ApplyDLLChoice() {
@@ -117,10 +120,28 @@ Btn_AutoQuest() {
 	If( enabled_AutoSkip := !enabled_AutoSkip ) {
         GuiControl, , Lbl_AutoQuest, AQ enabled
         AppendText(CmdOutputHwnd, "[" TimeString "] Auto Skip enabled!`n`r`n`r`n`r")
-		SetTimer, AutoQuest, 2250
+		SetTimer, t_AutoQuest, 2250
 	} else {
         GuiControl, , Lbl_AutoQuest, AQ disabled
         AppendText(CmdOutputHwnd, "[" TimeString "] Auto Skip disabled!`n`r`n`r`n`r")
-		SetTimer, AutoQuest, off
+		SetTimer, t_AutoQuest, off
     }
 }
+
+Btn_LiveAppBroadcasting() {
+    Gui, Submit, NoHide
+	GuiControl, , CmdOutput
+    FormatTime, TimeString, T12, Time
+	If( enabled_LiveAppBroadc := !enabled_LiveAppBroadc ) {
+        AppendText(CmdOutputHwnd, "[" TimeString "] Live Broadcasting activated!`n`r`n`r")
+        GuiControl, , Lbl_LiveAppBroadcasting, LAB enabled
+        Gui, Show, w1250, LDP+ADB
+		SetTimer, t_LiveAppBroadcasting, 4000
+	} else {
+        AppendText(CmdOutputHwnd, "[" TimeString "] Live Broadcasting de-activated!`n`r`n`r`n`r")
+        GuiControl, , Lbl_LiveAppBroadcasting, LAB disabled
+	    Gui, Show, w815, LDP+ADB
+		SetTimer, t_LiveAppBroadcasting, off
+    }
+}
+
