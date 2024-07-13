@@ -1,16 +1,32 @@
 
-WinActivate, % "ahk_class LDPlayerMainFrame"
+WinActivate, Diablo IV
 hWND := WinActive("A")
 
 
-F3::msgbox, % AeroGetPixel(150, 150, hWND)
-AeroGetPixel(x, y, hwnd := 0)
+F3::
+	PixelGetColor, color, 1255, 1330, RGB
+	if (ColorCompare(color, "0x360202") > 26)
+		msgbox, % "use a potion"
+	else
+		msgbox, % "No need for a pot!"
+return
+
+F5::reload
+
+ColorCompare(color1,color2)  ; colors in hex format  "0xff8728"
 {
-	hDC := DllCall("user32.dll\GetDCEx", "Ptr", hwnd, "UInt", 0, "UInt", 1|2)
-	pix := DllCall("gdi32.dll\GetPixel", "Ptr", hDC, "Int", x, "Int", y, "UInt")
-	DllCall("user32.dll\ReleaseDC", "Ptr", hwnd, "Ptr", hDC)
-	DllCall("gdi32.dll\DeleteDC", "Ptr", hDC)
-	VarSetCapacity(hex, 8 << !!A_IsUnicode, 0)
-    DllCall("shlwapi.dll\wnsprintf", "Str", hex, "Int", 8, "Str", "%06I64X", "Int", pix, "Int")
-    return "0x" hex
+  Loop,2
+  {
+    param:=A_Index
+    StringTrimLeft,color%param%,color%param%,2
+    Loop,3
+    {
+      StringLeft,c%param%%A_Index%,color%param%,2
+      value:=c%param%%A_Index%
+      c%param%%A_Index%=0x%value%
+      StringTrimLeft,color%param%,color%param%,2
+    }
+  } 
+  difference:=(Abs(c11-c21)+Abs(c12-c22)+Abs(c13-c23))/3
+  Return difference
 }

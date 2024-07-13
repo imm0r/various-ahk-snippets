@@ -1,23 +1,504 @@
+Test Center/ShinsOverlay/class_TextRender - Speed Test.ahk
+Test Center/ShinsOverlay/EverythingExample.ahk
+Test Center/ShinsOverlay/flute_orig.png
+Test Center/ShinsOverlay/flute.png
+Test Center/ShinsOverlay/foundFlute.png
+Test Center/ShinsOverlay/foundInvMisc.png
+Test Center/ShinsOverlay/GeneralExample.ahk
+Test Center/ShinsOverlay/invMisc.png
+Test Center/ShinsOverlay/maid.png
+Test Center/ShinsOverlay/ShinsImageScanClass.ahk
+Test Center/ShinsOverlay/ShinsOverlayClass.ahk
+Test Center/ShinsOverlay/inv/foundItm_1.png
+Test Center/ShinsOverlay/inv/foundItm_2.png
+Test Center/ShinsOverlay/inv/foundItm_3.png
+Test Center/ShinsOverlay/inv/foundItm_4.png
+Test Center/ShinsOverlay/inv/foundItm_5.png
+Test Center/ShinsOverlay/inv/foundItm_6.png
+Test Center/ShinsOverlay/inv/foundItm_7.png
+Test Center/ShinsOverlay/inv/foundItm_8.png
+Test Center/ShinsOverlay/inv/foundItm_9.png
+Test Center/ShinsOverlay/inv/foundItm_10.png
+Test Center/ShinsOverlay/inv/foundItm_11.png
+Test Center/ShinsOverlay/inv/foundItm_12.png
+Test Center/ShinsOverlay/inv/foundItm_13.png
+Test Center/ShinsOverlay/inv/foundItm_14.png
+Test Center/ShinsOverlay/inv/foundItm_15.png
+Test Center/ShinsOverlay/inv/foundItm_16.png
+Test Center/ShinsOverlay/inv/foundItm_17.png
+Test Center/ShinsOverlay/inv/foundItm_18.png
+Test Center/ShinsOverlay/inv/foundItm_19.png
+Test Center/ShinsOverlay/inv/foundItm_20.png
+Test Center/ShinsOverlay/inv/foundItm_21.png
+Test Center/ShinsOverlay/inv/foundItm_22.png
+Test Center/ShinsOverlay/inv/foundItm_23.png
+Test Center/ShinsOverlay/inv/foundItm_24.png
+Test Center/ShinsOverlay/inv/foundItm_25.png
+Test Center/ShinsOverlay/inv/foundItm_26.png
+Test Center/ShinsOverlay/inv/foundItm_27.png
+Test Center/ShinsOverlay/inv/foundItm_28.png
+Test Center/ShinsOverlay/inv/foundItm_29.png
+Test Center/ShinsOverlay/inv/foundItm_30.png
+Test Center/ShinsOverlay/inv/foundItm_31.png
+Test Center/ShinsOverlay/inv/foundItm_32.png
+Test Center/ShinsOverlay/inv/foundItm_33.png
+Test Center/ShinsOverlay/inv/foundItm_34.png
+Test Center/ShinsOverlay/inv/foundItm_35.png
+Test Center/ShinsOverlay/inv/foundItm_36.png
+Test Center/ShinsOverlay/inv/foundItm_37.png
+Test Center/ShinsOverlay/inv/foundItm_38.png
+Test Center/ShinsOverlay/inv/foundItm_39.png
+Test Center/ShinsOverlay/inv/foundItm_40.png
+Test Center/ShinsOverlay/inv/foundItm_41.png
+Test Center/ShinsOverlay/inv/foundItm_42.png
+Test Center/ShinsOverlay/inv/foundItm_43.png
+Test Center/ShinsOverlay/inv/foundItm_44.png
+Test Center/ShinsOverlay/inv/foundItm_45.png
+Test Center/ShinsOverlay/inv/foundItm_46.png
+Test Center/ShinsOverlay/inv/foundItm_47.png
+Test Center/ShinsOverlay/inv/foundItm_48.png
+Test Center/ShinsOverlay/inv/foundItm_49.png
+Test Center/ShinsOverlay/inv/foundItm_50.png
+Test Center/ShinsOverlay/inv/foundItm_51.png
+Test Center/ShinsOverlay/inv/foundItm_52.png
+Test Center/ShinsOverlay/inv/foundItm_53.png
+Test Center/ShinsOverlay/inv/foundItm_54.png
+Test Center/ShinsOverlay/inv/foundItm_55.png
+Test Center/ShinsOverlay/inv/foundItm_56.png
+Test Center/ShinsOverlay/inv/foundItm_57.png
+Test Center/ShinsOverlay/inv/foundItm_58.png
+Test Center/ShinsOverlay/inv/foundItm_59.png
+Test Center/ShinsOverlay/inv/foundItm_60.png
+Test Center/ShinsOverlay/inv/foundItm_61.png
+Test Center/ShinsOverlay/inv/foundItm_62.png
+Test Center/ShinsOverlay/inv/foundItm_63.png
+Test Center/ShinsOverlay/inv/foundItm_64.png
+Test Center/ShinsOverlay/inv/foundItm_65.png
+Test Center/ShinsOverlay/inv/foundItm_66.png
+Test Center/ShinsOverlay/inv/foundItm_67.png
+Test Center/ShinsOverlay/inv/foundItm_68.png
+Test Center/ShinsOverlay/inv/foundItm_69.png
+Test Center/ShinsOverlay/inv/foundItm_70.png
+Test Center/ShinsOverlay/inv/foundItm_71.png
+Test Center/ShinsOverlay/inv/foundItm_72.png
+Test Center/ShinsOverlay/inv/foundItm_73.png
+Test Center/ShinsOverlay/inv/foundItm_74.png
+Test Center/ShinsOverlay/inv/foundItm_75.png
+Test Center/ShinsOverlay/inv/foundItm_76.png
+Test Center/ShinsOverlay/inv/foundItm_77.png
+Test Center/ShinsOverlay/inv/foundItm_78.png
+Test Center/ShinsOverlay/inv/foundItm_79.png
+Test Center/ShinsOverlay/inv/foundItm_80.png
+Test Center/ShinsOverlay/inv/foundItm_81.png
+Test Center/ShinsOverlay/inv/foundItm_82.png
+Test Center/ShinsOverlay/inv/foundItm_83.png
+Test Center/ShinsOverlay/inv/foundItm_84.png
+Test Center/ShinsOverlay/inv/foundItm_85.png
+Test Center/ShinsOverlay/inv/foundItm_86.png
+Test Center/ShinsOverlay/inv/foundItm_87.png
+Test Center/ShinsOverlay/inv/foundItm_88.png
+Test Center/ShinsOverlay/inv/foundItm_89.png
+Test Center/ShinsOverlay/inv/foundItm_90.png
+Test Center/ShinsOverlay/inv/foundItm_91.png
+Test Center/ShinsOverlay/inv/foundItm_92.png
+Test Center/ShinsOverlay/inv/foundItm_93.png
+Test Center/ShinsOverlay/inv/foundItm_94.png
+Test Center/ShinsOverlay/inv/foundItm_95.png
+Test Center/ShinsOverlay/inv/foundItm_96.png
+Test Center/ShinsOverlay/inv/foundItm_97.png
+Test Center/ShinsOverlay/inv/foundItm_98.png
+Test Center/ShinsOverlay/inv/foundItm_99.png
+Test Center/ShinsOverlay/inv/foundItm_100.png
+Test Center/ShinsOverlay/inv/foundItm_101.png
+Test Center/ShinsOverlay/inv/foundItm_102.png
+Test Center/ShinsOverlay/inv/foundItm_103.png
+Test Center/ShinsOverlay/inv/foundItm_104.png
+Test Center/ShinsOverlay/inv/foundItm_105.png
+Test Center/ShinsOverlay/inv/foundItm_106.png
+Test Center/ShinsOverlay/inv/foundItm_107.png
+Test Center/ShinsOverlay/inv/foundItm_108.png
+Test Center/ShinsOverlay/inv/foundItm_109.png
+Test Center/ShinsOverlay/inv/foundItm_110.png
+Test Center/ShinsOverlay/inv/foundItm_111.png
+Test Center/ShinsOverlay/inv/foundItm_112.png
+Test Center/ShinsOverlay/inv/foundItm_113.png
+Test Center/ShinsOverlay/inv/foundItm_114.png
+Test Center/ShinsOverlay/inv/foundItm_115.png
+Test Center/ShinsOverlay/inv/foundItm_116.png
+Test Center/ShinsOverlay/inv/foundItm_117.png
+Test Center/ShinsOverlay/inv/foundItm_118.png
+Test Center/ShinsOverlay/inv/foundItm_119.png
+Test Center/ShinsOverlay/inv/foundItm_120.png
+Test Center/ShinsOverlay/inv/foundItm_121.png
+Test Center/ShinsOverlay/inv/foundItm_122.png
+Test Center/ShinsOverlay/inv/foundItm_123.png
+Test Center/ShinsOverlay/inv/foundItm_124.png
+Test Center/ShinsOverlay/inv/foundItm_125.png
+Test Center/ShinsOverlay/inv/foundItm_126.png
+Test Center/ShinsOverlay/inv/foundItm_127.png
+Test Center/ShinsOverlay/inv/foundItm_128.png
+Test Center/ShinsOverlay/inv/foundItm_129.png
+Test Center/ShinsOverlay/inv/foundItm_130.png
+Test Center/ShinsOverlay/inv/foundItm_131.png
+Test Center/ShinsOverlay/inv/foundItm_132.png
+Test Center/ShinsOverlay/inv/foundItm_133.png
+Test Center/ShinsOverlay/inv/foundItm_134.png
+Test Center/ShinsOverlay/inv/foundItm_135.png
+Test Center/ShinsOverlay/inv/foundItm_136.png
+Test Center/ShinsOverlay/inv/foundItm_137.png
+Test Center/ShinsOverlay/inv/foundItm_138.png
+Test Center/ShinsOverlay/inv/foundItm_139.png
+Test Center/ShinsOverlay/inv/foundItm_140.png
+Test Center/ShinsOverlay/inv/foundItm_141.png
+Test Center/ShinsOverlay/inv/foundItm_142.png
+Test Center/ShinsOverlay/inv/foundItm_143.png
+Test Center/ShinsOverlay/inv/foundItm_144.png
+Test Center/ShinsOverlay/inv/foundItm_145.png
+Test Center/ShinsOverlay/inv/foundItm_146.png
+Test Center/ShinsOverlay/inv/foundItm_147.png
+Test Center/ShinsOverlay/inv/foundItm_148.png
+Test Center/ShinsOverlay/inv/foundItm_149.png
+Test Center/ShinsOverlay/inv/foundItm_150.png
+Test Center/ShinsOverlay/inv/foundItm_151.png
+Test Center/ShinsOverlay/inv/foundItm_152.png
+Test Center/ShinsOverlay/inv/foundItm_153.png
+Test Center/ShinsOverlay/inv/foundItm_154.png
+Test Center/ShinsOverlay/inv/foundItm_155.png
+Test Center/ShinsOverlay/inv/foundItm_156.png
+Test Center/ShinsOverlay/inv/foundItm_157.png
+Test Center/ShinsOverlay/inv/foundItm_158.png
+Test Center/ShinsOverlay/inv/foundItm_159.png
+Test Center/ShinsOverlay/inv/foundItm_160.png
+Test Center/ShinsOverlay/inv/foundItm_161.png
+Test Center/ShinsOverlay/inv/foundItm_162.png
+Test Center/ShinsOverlay/inv/foundItm_163.png
+Test Center/ShinsOverlay/inv/foundItm_164.png
+Test Center/ShinsOverlay/inv/foundItm_165.png
+Test Center/ShinsOverlay/inv/foundItm_166.png
+Test Center/ShinsOverlay/inv/foundItm_167.png
+Test Center/ShinsOverlay/inv/foundItm_168.png
+Test Center/ShinsOverlay/inv/foundItm_169.png
+Test Center/ShinsOverlay/inv/foundItm_170.png
+Test Center/ShinsOverlay/inv/foundItm_171.png
+Test Center/ShinsOverlay/inv/foundItm_172.png
+Test Center/ShinsOverlay/inv/foundItm_173.png
+Test Center/ShinsOverlay/inv/foundItm_174.png
+Test Center/ShinsOverlay/inv/foundItm_175.png
+Test Center/ShinsOverlay/inv/foundItm_176.png
+Test Center/ShinsOverlay/inv/foundItm_177.png
+Test Center/ShinsOverlay/inv/foundItm_178.png
+Test Center/ShinsOverlay/inv/foundItm_179.png
+Test Center/ShinsOverlay/inv/foundItm_180.png
+Test Center/ShinsOverlay/inv/foundItm_181.png
+Test Center/ShinsOverlay/inv/foundItm_182.png
+Test Center/ShinsOverlay/inv/foundItm_183.png
+Test Center/ShinsOverlay/inv/foundItm_184.png
+Test Center/ShinsOverlay/inv/foundItm_185.png
+Test Center/ShinsOverlay/inv/foundItm_186.png
+Test Center/ShinsOverlay/inv/foundItm_187.png
+Test Center/ShinsOverlay/inv/foundItm_188.png
+Test Center/ShinsOverlay/inv/foundItm_189.png
+Test Center/ShinsOverlay/inv/foundItm_190.png
+Test Center/ShinsOverlay/inv/foundItm_191.png
+Test Center/ShinsOverlay/inv/foundItm_192.png
+Test Center/ShinsOverlay/inv/foundItm_193.png
+Test Center/ShinsOverlay/inv/foundItm_194.png
+Test Center/ShinsOverlay/inv/foundItm_195.png
+Test Center/ShinsOverlay/inv/foundItm_196.png
+Test Center/ShinsOverlay/inv/foundItm_197.png
+Test Center/ShinsOverlay/inv/foundItm_198.png
+Test Center/ShinsOverlay/inv/foundItm_199.png
+Test Center/ShinsOverlay/inv/foundItm_200.png
+Test Center/ShinsOverlay/inv/foundItm_201.png
+Test Center/ShinsOverlay/inv/foundItm_202.png
+Test Center/ShinsOverlay/inv/foundItm_203.png
+Test Center/ShinsOverlay/inv/foundItm_204.png
+Test Center/ShinsOverlay/inv/foundItm_205.png
+Test Center/ShinsOverlay/inv/foundItm_206.png
+Test Center/ShinsOverlay/inv/foundItm_207.png
+Test Center/ShinsOverlay/inv/foundItm_208.png
+Test Center/ShinsOverlay/inv/foundItm_209.png
+Test Center/ShinsOverlay/inv/foundItm_210.png
+Test Center/ShinsOverlay/inv/foundItm_211.png
+Test Center/ShinsOverlay/inv/foundItm_212.png
+Test Center/ShinsOverlay/inv/foundItm_213.png
+Test Center/ShinsOverlay/inv/foundItm_214.png
+Test Center/ShinsOverlay/inv/foundItm_215.png
+Test Center/ShinsOverlay/inv/foundItm_216.png
+Test Center/ShinsOverlay/inv/foundItm_217.png
+Test Center/ShinsOverlay/inv/foundItm_218.png
+Test Center/ShinsOverlay/inv/foundItm_219.png
+Test Center/ShinsOverlay/inv/foundItm_220.png
+Test Center/ShinsOverlay/inv/foundItm_221.png
+Test Center/ShinsOverlay/inv/foundItm_222.png
+Test Center/ShinsOverlay/inv/foundItm_223.png
+Test Center/ShinsOverlay/inv/foundItm_224.png
+Test Center/ShinsOverlay/inv/foundItm_225.png
+Test Center/ShinsOverlay/inv/foundItm_226.png
+Test Center/ShinsOverlay/inv/foundItm_227.png
+Test Center/ShinsOverlay/inv/foundItm_228.png
+Test Center/ShinsOverlay/inv/foundItm_229.png
+Test Center/ShinsOverlay/inv/foundItm_230.png
+Test Center/ShinsOverlay/inv/foundItm_231.png
+Test Center/ShinsOverlay/inv/foundItm_232.png
+Test Center/ShinsOverlay/inv/foundItm_233.png
+Test Center/ShinsOverlay/inv/foundItm_234.png
+Test Center/ShinsOverlay/inv/foundItm_235.png
+Test Center/ShinsOverlay/inv/foundItm_236.png
+Test Center/ShinsOverlay/inv/foundItm_237.png
+Test Center/ShinsOverlay/inv/foundItm_238.png
+Test Center/ShinsOverlay/inv/foundItm_239.png
+Test Center/ShinsOverlay/inv/foundItm_240.png
+Test Center/ShinsOverlay/inv/foundItm_241.png
+Test Center/ShinsOverlay/inv/foundItm_242.png
+Test Center/ShinsOverlay/inv/foundItm_243.png
+Test Center/ShinsOverlay/inv/foundItm_244.png
+Test Center/ShinsOverlay/inv/foundItm_245.png
+Test Center/ShinsOverlay/inv/foundItm_246.png
+Test Center/ShinsOverlay/inv/foundItm_247.png
+Test Center/ShinsOverlay/inv/foundItm_248.png
+Test Center/ShinsOverlay/inv/foundItm_249.png
+Test Center/ShinsOverlay/inv/foundItm_250.png
+Test Center/ShinsOverlay/inv/foundItm_251.png
+Test Center/ShinsOverlay/inv/foundItm_252.png
+Test Center/ShinsOverlay/inv/foundItm_253.png
+Test Center/ShinsOverlay/inv/foundItm_254.png
+Test Center/ShinsOverlay/inv/foundItm_255.png
+Test Center/ShinsOverlay/inv/foundItm_256.png
+Test Center/ShinsOverlay/inv/foundItm_257.png
+Test Center/ShinsOverlay/inv/foundItm_258.png
+Test Center/ShinsOverlay/inv/foundItm_259.png
+Test Center/ShinsOverlay/inv/foundItm_260.png
+Test Center/ShinsOverlay/inv/foundItm_261.png
+Test Center/ShinsOverlay/inv/foundItm_262.png
+Test Center/ShinsOverlay/inv/foundItm_263.png
+Test Center/ShinsOverlay/inv/foundItm_264.png
+Test Center/ShinsOverlay/inv/foundItm_265.png
+Test Center/ShinsOverlay/inv/foundItm_266.png
+Test Center/ShinsOverlay/inv/foundItm_267.png
+Test Center/ShinsOverlay/inv/foundItm_268.png
+Test Center/ShinsOverlay/inv/foundItm_269.png
+Test Center/ShinsOverlay/inv/foundItm_270.png
+Test Center/ShinsOverlay/inv/foundItm_271.png
+Test Center/ShinsOverlay/inv/foundItm_272.png
+Test Center/ShinsOverlay/inv/foundItm_273.png
+Test Center/ShinsOverlay/inv/foundItm_274.png
+Test Center/ShinsOverlay/inv/foundItm_275.png
+Test Center/ShinsOverlay/inv/foundItm_276.png
+Test Center/ShinsOverlay/inv/foundItm_277.png
+Test Center/ShinsOverlay/inv/foundItm_278.png
+Test Center/ShinsOverlay/inv/foundItm_279.png
+Test Center/ShinsOverlay/inv/foundItm_280.png
+Test Center/ShinsOverlay/inv/foundItm_281.png
+Test Center/ShinsOverlay/inv/foundItm_282.png
+Test Center/ShinsOverlay/inv/foundItm_283.png
+Test Center/ShinsOverlay/inv/foundItm_284.png
+Test Center/ShinsOverlay/inv/foundItm_285.png
+Test Center/ShinsOverlay/inv/foundItm_286.png
+Test Center/ShinsOverlay/inv/foundItm_287.png
+Test Center/ShinsOverlay/inv/foundItm_288.png
+Test Center/ShinsOverlay/inv/foundItm_289.png
+Test Center/ShinsOverlay/inv/foundItm_290.png
+Test Center/ShinsOverlay/inv/foundItm_291.png
+Test Center/ShinsOverlay/inv/foundItm_292.png
+Test Center/ShinsOverlay/inv/foundItm_293.png
+Test Center/ShinsOverlay/inv/foundItm_294.png
+Test Center/ShinsOverlay/inv/foundItm_295.png
+Test Center/ShinsOverlay/inv/foundItm_296.png
+Test Center/ShinsOverlay/inv/foundItm_297.png
+Test Center/ShinsOverlay/inv/foundItm_298.png
+Test Center/ShinsOverlay/inv/foundItm_299.png
+Test Center/ShinsOverlay/inv/foundItm_300.png
+Test Center/ShinsOverlay/inv/foundItm_301.png
+Test Center/ShinsOverlay/inv/foundItm_302.png
+Test Center/ShinsOverlay/inv/foundItm_303.png
+Test Center/ShinsOverlay/inv/foundItm_304.png
+Test Center/ShinsOverlay/inv/foundItm_305.png
+Test Center/ShinsOverlay/inv/foundItm_306.png
+Test Center/ShinsOverlay/inv/foundItm_307.png
+Test Center/ShinsOverlay/inv/foundItm_308.png
+Test Center/ShinsOverlay/inv/foundItm_309.png
+Test Center/ShinsOverlay/inv/foundItm_310.png
+Test Center/ShinsOverlay/inv/foundItm_311.png
+Test Center/ShinsOverlay/inv/foundItm_312.png
+Test Center/ShinsOverlay/inv/foundItm_313.png
+Test Center/ShinsOverlay/inv/foundItm_314.png
+Test Center/ShinsOverlay/inv/foundItm_315.png
+Test Center/ShinsOverlay/inv/foundItm_316.png
+Test Center/ShinsOverlay/inv/foundItm_317.png
+Test Center/ShinsOverlay/inv/foundItm_318.png
+Test Center/ShinsOverlay/inv/foundItm_319.png
+Test Center/ShinsOverlay/inv/foundItm_320.png
+Test Center/ShinsOverlay/inv/foundItm_321.png
+Test Center/ShinsOverlay/inv/foundItm_322.png
+Test Center/ShinsOverlay/inv/foundItm_323.png
+Test Center/ShinsOverlay/inv/foundItm_324.png
+Test Center/ShinsOverlay/inv/foundItm_325.png
+Test Center/ShinsOverlay/inv/foundItm_326.png
+Test Center/ShinsOverlay/inv/foundItm_327.png
+Test Center/ShinsOverlay/inv/foundItm_328.png
+Test Center/ShinsOverlay/inv/foundItm_329.png
+Test Center/ShinsOverlay/inv/foundItm_330.png
+Test Center/ShinsOverlay/inv/foundItm_331.png
+Test Center/ShinsOverlay/inv/foundItm_332.png
+Test Center/ShinsOverlay/inv/foundItm_333.png
+Test Center/ShinsOverlay/inv/foundItm_334.png
+Test Center/ShinsOverlay/inv/foundItm_335.png
+Test Center/ShinsOverlay/inv/foundItm_336.png
 .vscode/launch.json
-Test Center/DictionaryClassTests.ahk
-ScreenRotationTest.exe
 .vscode/settings.json
+L2R_ADB/misc/img/20221108023917_pulled-SS.png
+L2R_ADB/misc/img/20221108024028_pulled-SS.png
+L2R_ADB/misc/img/20221113190625_pulled-SS.png
+L2R_ADB/misc/img/20221113214638_pulled-SS.png
+L2R_ADB/misc/img/20221114121031_pulled-SS.png
+L2R_ADB/misc/img/20221114130831_pulled-SS.png
+L2R_ADB/misc/img/20221114131004_pulled-SS.png
+L2R_ADB/misc/img/20221114131234_pulled-SS.png
+L2R_ADB/dbg/2022-11-08.log
+L2R_ADB/dbg/2022-11-13.log
+L2R_ADB/dbg/2022-11-14.log
+L2R_ADB/dbg/2022-11-15.log
+L2R_ADB/.vscode/extensions.json
+L2R_ADB/.vscode/launch.json
+L2R_ADB/.vscode/tasks.json
+L2R_WordFilter/SlanderMessage_en.csv
+L2R_WordFilter/SlanderMessage_id_ID.csv
+L2R_WordFilter/SlanderMessage_ko_KR.csv
+L2R_WordFilter/SlanderMessage_th_TH.csv
+L2R_WordFilter/SlanderMessage_zh_TW.csv
+L2R_WordFilter/SlanderMessage.csv
+L2R_WordFilter/SlanderName_en.csv
+L2R_WordFilter/SlanderName_id_ID.csv
+L2R_WordFilter/SlanderName_ko_KR.csv
+L2R_WordFilter/SlanderName_th_TH.csv
+L2R_WordFilter/SlanderMessage_en.csv
+L2R_WordFilter/SlanderMessage_id_ID.csv
+L2R_WordFilter/SlanderMessage_ko_KR.csv
+L2R_WordFilter/SlanderMessage_th_TH.csv
+L2R_WordFilter/SlanderMessage_zh_TW.csv
+L2R_WordFilter/SlanderMessage.csv
+L2R_WordFilter/SlanderName_en.csv
+L2R_WordFilter/SlanderName_id_ID.csv
+L2R_WordFilter/SlanderName_ko_KR.csv
+L2R_WordFilter/SlanderName_th_TH.csv
+shinsGfxClass/EverythingExample.ahk
+shinsGfxClass/GeneralExample.ahk
+shinsGfxClass/MouseDots.ahk
+shinsGfxClass/Polygons.ahk
+shinsGfxClass/stickMan.png
+Test Center/ShinsOverlay/event/adenabox.png
+Test Center/ShinsOverlay/event/essencebox.png
+Test Center/ShinsOverlay/event/harvesttool.png
+Test Center/ShinsOverlay/event/hppot.png
+Test Center/ShinsOverlay/event/maphrsfragment.png
+Test Center/ShinsOverlay/event/questscroll.png
+Test Center/ShinsOverlay/event/sashyafragment.png
+Test Center/ShinsOverlay/event/shilensfragment.png
+Test Center/ShinsOverlay/event/smallharvesttool.png
+Test Center/ShinsOverlay/event/soulshots.png
+Test Center/adb.ahk
+Test Center/AHK-CodeSearch/.gitignore
+Test Center/AHK-CodeSearch/CodeSearch.ahk
+Test Center/AHK-CodeSearch/CodeSearch.ico
+Test Center/AHK-CodeSearch/Readme.md
+Test Center/AHK-CodeSearch/readme.txt
+Test Center/AHK-CodeSearch/Classes/class_Config.ahk
+Test Center/AHK-CodeSearch/Classes/class_Config.ahk.bak
+Test Center/AHK-CodeSearch/Classes/Class_JSON.ahk
+Test Center/AHK-CodeSearch/Classes/class_RichCode.ahk
+Test Center/AHK-CodeSearch/Classes/Config.ahk
+Test Center/AHK-CodeSearch/Classes/RichCode-LICENSE
+Test Center/AHK-CodeSearch/Classes/RichCode-README.md
+Test Center/AHK-CodeSearch/Classes/Highlighters/AHK.ahk
+Test Center/AHK-CodeSearch/Classes/Highlighters/CSS.ahk
+Test Center/AHK-CodeSearch/Classes/Highlighters/HTML.ahk
+Test Center/AHK-CodeSearch/Classes/Highlighters/JS.ahk
+Test Center/AHK-CodeSearch/Classes/Highlighters/Util.ahk
+Test Center/AHK-CodeSearch/Includes/adjHdrs.ahk
+Test Center/AHK-CodeSearch/Includes/SciteOutPut.ahk
+Test Center/AHK-CodeSearch/assets/4293840.png
+Test Center/AHK-CodeSearch/assets/Screenshot-092022.png
+Test Center/AHK-CodeSearch/assets/Screenshot.png
+Test Center/.vscode/extensions.json
+Test Center/.vscode/launch.json
+Test Center/cliSAK_Tests.ahk
+Test Center/cliSAK_Tests.ahk
+Test Center/CmdRet.ahk
+Test Center/CmdRet1.ahk
+Test Center/console_tests.ahk
 Test Center/DictionaryClassTests.ahk
+Test Center/eWinEventHook.ahk
+Test Center/Gdip_FillRoundedRectangle.ahk
+Test Center/L2R_ADB.code-workspace
+Test Center/LayeredWindows.ahk
+Test Center/notepadWurdeAutomatisiert.txt
+Test Center/Showcase 03 - Speed Test.ahk
+Test Center/Showcase 05 - Wallpaper Clock.ahk
+Test Center/Subprocess_test.ahk
+Test Center/test_NtQuerySystemInformation.ahk
+Test Center/TextRender.anchor.ahk
+Test Center/TextRender.anchor&margin.ahk
+Test Center/TextRender.justify.ahk
+Test Center/TextRender.margin.ahk
+Test Center/Anchor.ahk
+Test Center/cliSAK_Tests.ahk
+Test Center/DictionaryClassTests.ahk
+Test Center/ocr.ahk
+Test Center/ScreenRotationTest.ahk
+Test Center/StdOutStream.ahk
+Test Center/StructParser.ahk
+Test Center/Subprocess.ahk
+Test Center/TextRender.x&y.ahk
+Test Center/UIATreeInspector.ahk
+Test Center/UIAutomation_Example1-Notepad.ahk
+Test Center/UIAutomation_Example2-Notepad-MoreComplicated.ahk
+Test Center/UIAutomation_Example3-BrowserStuff.ahk
+Test Center/UIAutomation_LDPlayer.ahk
+Test Center/UIAViewer.ahk
+Test Center/winEventHook.ahk
+Test Center/WorkingWithDLLs.ahk
+Test Center/wtf.ahk
+Test Center/cliSAK_Tests.ahk
+Test Center/DictionaryClassTests.ahk
+Test Center/Subprocess.ahk
+shinsGfxClass/EverythingExample.ahk
+shinsGfxClass/GeneralExample.ahk
+shinsGfxClass/MouseDots.ahk
+shinsGfxClass/Polygons.ahk
+shinsGfxClass/stickMan.png
+SHGetKnownFolderPath/SHGetKnownFolderPath.ahk
+Examples/example1.ahk
+Examples/PaintExample.ahk
+Examples/WarframeAutoMiner.ahk
 L2R Image Cpy/log.txt
 L2R Image Cpy/winSpy.ahk
 L2R Image Cpy/img/inv.png
 L2R Image Cpy/img/menuExit.png
-L2R_WordFilter/README.md
-priv/Blacksmith's Essence.png
-priv/Elsium Fragment.png
-priv/Elsium.png
-priv/High-grade Tool Kit.png
-priv/ManaStone-Accessory_LVL1.png
-priv/ManaStone-Accessory_LVL2.png
-priv/Radiant Accessory Upgrade Stone.png
-priv/Refining Stone.png
-priv/Rough Activation Stone.png
-priv/Tool Kit.png
-priv/Unconfirmed Accessory Beads.png
-Test Center/WorkingWithDLLs.ahk
-adb/adb.exe
+ocr/ocr.ahk
+ocr/ocr3.ahk
+SHGetKnownFolderPath/SHGetKnownFolderPath.ahk
+shinsGfxClass/EverythingExample.ahk
+shinsGfxClass/GeneralExample.ahk
+shinsGfxClass/MouseDots.ahk
+shinsGfxClass/Polygons.ahk
+shinsGfxClass/stickMan.png
+Diablo IV/.vscode/launch.json
+Diablo IV/.vscode/settings.json
+Diablo IV/autoheal.log
+Diablo IV/D4.code-workspace
+Diablo IV/wab.log
+Examples/example1.ahk
+Examples/PaintExample.ahk
+Examples/WarframeAutoMiner.ahk
+Examples/example1.ahk
+Examples/PaintExample.ahk
+Examples/WarframeAutoMiner.ahk
+Examples/example1.ahk
+Examples/PaintExample.ahk
+Examples/WarframeAutoMiner.ahk
+shinsGfxClass/EverythingExample.ahk
+shinsGfxClass/GeneralExample.ahk
+shinsGfxClass/MouseDots.ahk
+shinsGfxClass/Polygons.ahk
+shinsGfxClass/stickMan.png

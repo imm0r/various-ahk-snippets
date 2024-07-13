@@ -24,7 +24,7 @@ return
 
 F2::
 	reload
-return		
+return
 
 GetHwnd(process, exename)
 {

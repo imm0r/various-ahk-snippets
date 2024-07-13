@@ -27,20 +27,8 @@ WinGetTextFast(detect_hidden := 1)
 	return text
 }
 
-WinGetTextFast()
-
+F9::
+	GetLDPClassIDs()
+	msgbox, % WinGetTextFast()
 return
-
-F8::
-	WinGet, ControlList, ControlListHwnd, A
-	clipboard := ControlList
-	VarSetCapacity(buf, 32767 * (A_IsUnicode ? 2 : 1))
-	Loop Parse, ControlList, `n
-	{
-		IsVisible := DllCall("IsWindowVisible", "ptr", A_LoopField)
-		WinText := DllCall("GetWindowText", "ptr", A_LoopField, "str", buf, "int", 32767)
-		msgbox, % "Current Control ID: " A_LoopField "`n`nIsVisible: " IsVisible "`t`tControlText: " WinText "`nbuf: " buf
-	}
-	clipboard := ControlList
 return
-

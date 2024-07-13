@@ -1,0 +1,387 @@
+  "d": {
+    "intents": 3276799,
+    "properties": {
+      "$browser": "Discord.ahk",
+      "$device": "Discord.ahk",
+      "$os": "Windows"
+    },
+    "token": "OTU3MjA1NjU3NTAzNjYyMDg.G_KGwF.EjK653LUfIEw8nCVe9RVtxiyrGCaak47DZuMms"
+  },
+  "op": 2
+  "d": {
+    "channel_id": null,
+    "guild_id": null,
+    "self_deaf": false,
+    "self_mute": true,
+    "self_video": false
+  },
+  "op": 4
+}{
+  "d": 4,
+  "op": 1
+}{
+  "d": 7,
+  "op": 1
+}{
+  "d": 7,
+  "op": 1
+}{
+  "d": 10,
+  "op": 1
+}{
+  "d": 12,
+  "op": 1
+}{
+  "d": 12,
+  "op": 1
+}{
+  "d": 12,
+  "op": 1
+}{
+  "d": 26,
+  "op": 1
+}{
+  "d": 27,
+  "op": 1
+}{
+  "d": 31,
+  "op": 1
+}{
+  "d": 33,
+  "op": 1
+}{
+  "d": 33,
+  "op": 1
+}{
+  "d": 33,
+  "op": 1
+}{
+  "d": 33,
+  "op": 1
+}{
+  "d": 35,
+  "op": 1
+}{
+  "d": {
+    "intents": 3276799,
+    "properties": {
+      "$browser": "Discord.ahk",
+      "$device": "Discord.ahk",
+      "$os": "Windows"
+    },
+    "token": "OTU3MjA1NjU3NTAzNjYyMDg.G_KGwF.EjK653LUfIEw8nCVe9RVtxiyrGCaak47DZuMms"
+  },
+  "op": 2
+}{
+  "d": {
+    "channel_id": null,
+    "guild_id": null,
+    "self_deaf": false,
+    "self_mute": true,
+    "self_video": false
+  },
+  "op": 4
+}{
+  "d": {
+    "intents": 3276799,
+    "properties": {
+      "$browser": "Discord.ahk",
+      "$device": "Discord.ahk",
+      "$os": "Windows"
+    },
+    "token": "OTU3MjA1NjU3NTAzNjYyMDg.G_KGwF.EjK653LUfIEw8nCVe9RVtxiyrGCaak47DZuMms"
+  },
+  "op": 2
+}{
+  "d": {
+    "channel_id": null,
+    "guild_id": null,
+    "self_deaf": false,
+    "self_mute": true,
+    "self_video": false
+  },
+  "op": 4
+}{
+  "d": 3,
+  "op": 1
+}{
+  "d": 4,
+  "op": 1
+}{
+  "d": 4,
+  "op": 1
+}{
+  "d": 8,
+  "op": 1
+}{
+  "d": 9,
+  "op": 1
+}{
+  "d": 11,
+  "op": 1
+}{
+  "d": 12,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 13,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": 15,
+  "op": 1
+}{
+  "d": {
+    "intents": 3276799,
+    "properties": {
+      "$browser": "Discord.ahk",
+      "$device": "Discord.ahk",
+      "$os": "Windows"
+    },
+    "token": "OTU3MjA1NjU3NTAzNjYyMDg.G_KGwF.EjK653LUfIEw8nCVe9RVtxiyrGCaak47DZuMms"
+  },
+  "op": 2
+}{
+  "d": {
+    "channel_id": null,
+    "guild_id": null,
+    "self_deaf": false,
+    "self_mute": true,
+    "self_video": false
+  },
+  "op": 4
+}{
+  "d": 11,
+  "op": 1
+}{
+  "d": 17,
+  "op": 1
+}{
+  "d": 23,
+  "op": 1
+}{
+  "d": 30,
+  "op": 1
+}{
+  "d": 30,
+  "op": 1
+}{
+  "d": 30,
+  "op": 1
+}{
+  "d": {
+    "intents": 3276799,
+    "properties": {
+      "$browser": "Discord.ahk",
+      "$device": "Discord.ahk",
+      "$os": "Windows"
+    },
+    "token": "OTU3MjA1NjU3NTAzNjYyMDg.G_KGwF.EjK653LUfIEw8nCVe9RVtxiyrGCaak47DZuMms"
+  },
+  "op": 2
+}{
+  "d": {
+    "channel_id": null,
+    "guild_id": null,
+    "self_deaf": false,
+    "self_mute": true,
+    "self_video": false
+  },
+  "op": 4
+}{
+  "d": 4,
+  "op": 1
+}{
+  "d": 9,
+  "op": 1
+}{
+  "d": 16,
+  "op": 1
+}{
+  "d": 21,
+  "op": 1
+}{
+  "d": {
+    "intents": 3276799,
+    "properties": {
+      "$browser": "Discord.ahk",
+      "$device": "Discord.ahk",
+      "$os": "Windows"
+    },
+    "token": "OTU3MjA1NjU3NTAzNjYyMDg.G_KGwF.EjK653LUfIEw8nCVe9RVtxiyrGCaak47DZuMms"
+  },
+  "op": 2
+}{
+  "d": {
+    "channel_id": null,
+    "guild_id": null,
+    "self_deaf": false,
+    "self_mute": true,
+    "self_video": false
+  },
+  "op": 4
+}{
+  "d": {
+    "intents": 3276799,
+    "properties": {
+      "$browser": "Discord.ahk",
+      "$device": "Discord.ahk",
+      "$os": "Windows"
+    },
+    "token": "OTU3MjA1NjU3NTAzNjYyMDg.G_KGwF.EjK653LUfIEw8nCVe9RVtxiyrGCaak47DZuMms"
+  },
+  "op": 2
+}{
+  "d": {
+    "channel_id": null,
+    "guild_id": null,
+    "self_deaf": false,
+    "self_mute": true,
+    "self_video": false
+  },
+  "op": 4
+}{
+  "d": 6,
+  "op": 1
+}{
+  "d": 6,
+  "op": 1
+}{
+  "d": {
+    "intents": 3276799,
+    "properties": {
+      "$browser": "Discord.ahk",
+      "$device": "Discord.ahk",
+      "$os": "Windows"
+    },
+    "token": "OTU3MjA1NjU3NTAzNjYyMDg.G_KGwF.EjK653LUfIEw8nCVe9RVtxiyrGCaak47DZuMms"
+  },
+  "op": 2
+}{
+  "d": {
+    "channel_id": null,
+    "guild_id": null,
+    "self_deaf": false,
+    "self_mute": true,
+    "self_video": false
+  },
+  "op": 4
+}{
+  "d": 2,
+  "op": 1
+}{
+  "d": 3,
+  "op": 1
+}{
+  "d": 3,
+  "op": 1
+}{
+  "d": 4,
+  "op": 1
+}{
+  "d": 5,
+  "op": 1
+}{
+  "d": 6,
+  "op": 1
+}{
+  "d": 6,
+  "op": 1
+}{
+  "d": 6,
+  "op": 1
+}{
+  "d": 6,
+  "op": 1
+}{
+  "d": 6,
+  "op": 1
+}

@@ -16,14 +16,6 @@ CmdGui()
 CmdGui() {
 	Gui, Cmd:New, +LabelCmd +HwndCmdHwnd +Resize, Console
 	Gui, Font, s10, Arial New
-	Gui, Add, Button, gExample1 x5 y5, get devices
-	Gui, Add, Button, gExample2 x+0, Connect to ADB
-	Gui, Add, Button, gExample3 x+0, is L2R installed
-	Gui, Add, Button, gExample4 x+0, Option4
-	Gui, Add, Button, gExample5 x+0, Option5
-	Gui, Add, Button, gExample6 x+0, Option6
-	Gui, Add, Button, gExample7 x+0, Option7
-	Gui, Add, Button, gExample8 x+0, Option8
 	
 	Gui, Add, Button, gShowWindow x+30, Show Window
 	Gui, Add, Button, gHideWindow x+0, Hide Window
@@ -77,17 +69,17 @@ global strClsName, wTitle, vPath, fPath, cPid, fName, wHwnd
 ; ============================================================================
 ; Callback Functions
 ; ============================================================================
-quit_cb(quitStr,ID,cliObj) { ; stream until user-defined QuitString is encountered (optional).
+quit_cb(quitStr, ID, cliObj) { ; stream until user-defined QuitString is encountered (optional).
     If (ID = "Mode_M")
-        GuiControl, , %CmdOutputHwnd%, Download Complete.
+        GuiControl, , %CmdOutputHwnd%, % "Download Complete.`n" cliObj 
     MsgBox % "QuitString encountered:`r`n`t" quitStr "`r`n`r`nWhatever you choose to do in this callback functions will be done."
 }
 
-stdout_cb(data,ID,cliObj) { ; Handle StdOut data as it streams (optional)
+stdout_cb(data, ID,	cliObj) { ; Handle StdOut data as it streams (optional)
     dbg("    data: " data)
     
 	If (ID = "Console_Streaming" Or ID = "Console_Simple") 
-		AppendText(CmdOutputHwnd,data) ; append data to edit box
+		AppendText(CmdOutputHwnd, data) ; append data to edit box
 	Else If (ID = "mode_M") {
         dbg("mode_M")
         
@@ -125,7 +117,6 @@ prompt_cb(prompt,ID,cliObj) { ; cliPrompt callback function --- default: cliProm
 ; ============================================================================
 ; send command to CLI instance when user presses ENTER
 ; ============================================================================
-
 OnMessage(0x0100,"WM_KEYDOWN") ; WM_KEYDOWN
 WM_KEYDOWN(wParam, lParam, msg, hwnd) { ; wParam = keycode in decimal | 13 = Enter | 32 = space
     CtrlHwnd := "0x" Format("{:x}",hwnd) ; control hwnd formatted to match +HwndVarName
@@ -147,7 +138,6 @@ SendCmd() { ; timer label from WM_KEYDOWN
 ; support functions
 ; ================================================================================
 ; ================================================================================
-
 AppendText(hEdit, sInput, loc="bottom") {
     ; ================================================================================
     ; AppendText(hEdit, ptrText)
@@ -171,12 +161,9 @@ dbg(_in) {
 ; ================================================================================
 ; hotkeys
 ; ================================================================================
-
-
-
 #IfWinActive, ahk_class AutoHotkeyGUI
 ^c::c.KeySequence("^c")
 ^CtrlBreak::c.KeySequence("^{CtrlBreak}")
 ^b::c.KeySequence("^{CtrlBreak}")			; in case user doesn't have BREAK key
-^x::c.close()				; closes active CLi instance if idle
+^x::c.close()								; closes active CLi instance if idle
 ^d::c.KeySequence("^d")

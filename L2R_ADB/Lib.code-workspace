@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"name": "Lib",
+			"path": "C:/Program Files/AutoHotkey/Lib"
+		},
+		{
+			"path": "../guild tool"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"powershell.cwd": "f:\\ahk\\L2R_ADB"
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": []
+	}
+}

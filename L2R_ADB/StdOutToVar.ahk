@@ -38,3 +38,20 @@ StdOutToVar(cmd) {
 	DllCall("CloseHandle", "Ptr", hReadPipe)
 	return sOutput
 }
+
+API_CreateWindowEx(0,			"Static",		msg_str,		WS_CHILD | WS_VISIBLE  ,	0,	0,	w,		h,			hwnd,		0,		0,			0)
+API_CreateWindowEx(dwExStyle,	lpClassName,	lpWindowName,	dwStyle,					x,	y,	nWidth,	nHeight,	hWndParent,	hMenu,	hInstance,	lpParam){
+	return DllCall("CreateWindowEx"
+		, "Uint",	dwExStyle
+		, "str",	lpClassName
+		, "str",	lpWindowName
+		, "Uint",	dwStyle
+		, "int",	x 
+		, "int",	y 
+		, "int",	nWidth 
+		, "int",	nHeight 
+		, "Uint",	hWndParent 
+		, "Uint",	hMenu 
+		, "Uint",	hInstance
+		, "Uint",	lpParam)
+}

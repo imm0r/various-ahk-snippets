@@ -91,7 +91,7 @@ JEE_ScreenToClient(hWnd, vPosX, vPosY, ByRef vPosX2, ByRef vPosY2)
 JEE_ScreenToWindow(hWnd, vPosX, vPosY, ByRef vPosX2, ByRef vPosY2)
 {
 	VarSetCapacity(RECT, 16)
-	DllCall("user32\GetWindowRect", Ptr,hWnd, Ptr,&RECT)
+	DllCall("user32\GetWindowRect", Ptr, hWnd, Ptr, &RECT)
 	vWinX := NumGet(&RECT, 0, "Int")
 	vWinY := NumGet(&RECT, 4, "Int")
 	vPosX2 := vPosX - vWinX
@@ -103,7 +103,7 @@ JEE_ScreenToWindow(hWnd, vPosX, vPosY, ByRef vPosX2, ByRef vPosY2)
 JEE_WindowToScreen(hWnd, vPosX, vPosY, ByRef vPosX2, ByRef vPosY2)
 {
 	VarSetCapacity(RECT, 16, 0)
-	DllCall("user32\GetWindowRect", Ptr,hWnd, Ptr,&RECT)
+	DllCall("user32\GetWindowRect", Ptr, hWnd, Ptr, &RECT)
 	vWinX := NumGet(&RECT, 0, "Int")
 	vWinY := NumGet(&RECT, 4, "Int")
 	vPosX2 := vPosX + vWinX
@@ -117,12 +117,12 @@ JEE_ClientToWindow(hWnd, vPosX, vPosY, ByRef vPosX2, ByRef vPosY2)
 	VarSetCapacity(POINT, 8)
 	NumPut(vPosX, &POINT, 0, "Int")
 	NumPut(vPosY, &POINT, 4, "Int")
-	DllCall("user32\ClientToScreen", Ptr,hWnd, Ptr,&POINT)
+	DllCall("user32\ClientToScreen", Ptr, hWnd, Ptr, &POINT)
 	vPosX2 := NumGet(&POINT, 0, "Int")
 	vPosY2 := NumGet(&POINT, 4, "Int")
 
 	VarSetCapacity(RECT, 16)
-	DllCall("user32\GetWindowRect", Ptr,hWnd, Ptr,&RECT)
+	DllCall("user32\GetWindowRect", Ptr, hWnd, Ptr, &RECT)
 	vWinX := NumGet(&RECT, 0, "Int")
 	vWinY := NumGet(&RECT, 4, "Int")
 	vPosX2 -= vWinX

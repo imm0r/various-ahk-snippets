@@ -1,5 +1,3 @@
-msgbox, % Subprocess_Run("cmd ipconfig")
-
 Subprocess_Run(args*)
 {
 	return new Subprocess(args*)
