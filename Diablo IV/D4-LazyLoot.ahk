@@ -121,7 +121,8 @@ mPos_overlay := new ShinsoverlayClass("Diablo IV")
 info_overlay := new ShinsoverlayClass("Diablo IV")
 olAction := new ShinsoverlayClass("Diablo IV")
 olState := new ShinsoverlayClass("Diablo IV")
-elipseOL := new ShinsoverlayClass(1, 1, A_ScreenWidth, A_ScreenHeight, 1, vsync:=0, clickThrough:=1)
+elipseOL := new ShinsoverlayClass("Diablo IV")
+;elipseOL := new ShinsoverlayClass(1, 1, A_ScreenWidth, A_ScreenHeight, 1, vsync:=0, clickThrough:=1)
 
 ;SetTimer, memWatch, 1500
 
@@ -157,18 +158,17 @@ F1::
   Theta := 360
   Deg := 15
   Pi := ATan(1) * 4
-
-  twoPi := 2 * 3.141592653589793
-  degToRad := 3.141592653589793 / 180
   
   ; Calculate the ellipse's parametric equation
-  t2 := (idxCircle * degToRad * Deg) % twoPi
   t := (idxCircle / (Theta / Deg) * 2) * Pi
-
-  msgbox, % t "=" t2
   
   ; Define the mouse move speed (in milliseconds)
   moveSpeed := 0
+  
+  if (elipseOL.BeginDraw()) {
+    elipseOL.DrawEllipse(A_ScreenWidth / 2, A_ScreenHeight / 2, A_ScreenWidth  / 2, A_ScreenHeight / 2, 0xb4275132, 8)
+    elipseOL.EndDraw()
+  }
   
   ;ControlSend, , {Ctrl down}, % "ahk_id " d4hWnd
   SendInput, {Ctrl down}
@@ -181,11 +181,6 @@ F1::
     info_overlay.FillRectangle(HT_info_overlayX, HT_info_overlayY, HT_info_overlayWidth, HT_info_overlayHeight, 0x77000000)
     info_overlay.DrawText("Helltide Accursed Ritual Module!`nAdd Phase Circle Attack", HT_info_overlayX, HT_info_overlayY + 5, 22, 0xAAFFD700, "Bahnschrift", "w400,aCenter,olFF000000,bold")
     info_overlay.EndDraw()
-  }
-  
-  if (elipseOL.BeginDraw()) {
-    elipseOL.DrawEllipse(A_ScreenWidth / 2, A_ScreenHeight / 2, A_ScreenWidth  / 2, A_ScreenHeight / 2, 0x633b0532, 8)
-    elipseOL.EndDraw()
   }
 
   if (olAction.BeginDraw()) {
@@ -425,35 +420,25 @@ CircleAttackCancel:
     elipseOL.EndDraw()
   }  
 
+  olAction.BeginDraw()
+  olAction.EndDraw()
+
   SetTimer, kill_InfoOverlay, -2500
   SetTimer, CircleAttack, off
   SetTimer, main, off
-
-  olAction.BeginDraw()
-  olAction.EndDraw()
   
   CircleAttackActive := 0
   sleep, 400
   SendInput, {Ctrl up}
   MouseMove, % (A_ScreenWidth // 2), % (A_ScreenHeight // 2), % random(2, 4)
-  if (olAction.BeginDraw()) {
-    olAction.FillRectangle((A_ScreenWidth // 2) - 25, (A_ScreenHeight // 2) - 25, 50, 50, 0xFFFF0000)
-    olAction.EndDraw()
-  }
-  SetTimer, kill_CursorPosOL, -2500
 return
     
 CircleAttack:
   if !WinActive("ahk_id " d4hWnd) {
     SetTimer, CircleAttackCancel, -1
   } else {
-    ; Move the mouse in an ellipse
-    ; Precalculated constants
-    static twoPi := 2 * 3.141592653589793
-    static degToRad := 3.141592653589793 / 180
-    
+    ; Move the mouse in an ellipse    
     ; Calculate the ellipse's parametric equation
-    t2 := (idxCircle * degToRad * Deg) % twoPi
     t := (idxCircle / (Theta / Deg) * 2) * Pi
     x := xCenter + majorAxis * Cos(t) * Cos(rotationAngle) - minorAxis * Sin(t) * Sin(rotationAngle)
     y := yCenter + majorAxis * Cos(t) * Sin(rotationAngle) + minorAxis * Sin(t) * Cos(rotationAngle)
@@ -467,8 +452,6 @@ CircleAttack:
 
     ; Move the mouse to the calculated coordinates
     MouseMove, % x, % y, % moveSpeed
-    
-    ;ControlSend, , {5}, % "ahk_id " d4hWnd
     SendInput {5}
   }
   CircleAttackActive := 1
@@ -478,7 +461,7 @@ main:
   if (olAction.BeginDraw()) {
     ;olAction.DrawRectangle(HT_overlayX, HT_overlayY, HT_overlayWidth, HT_overlayHeight, 0x55336699, 4)
     ;olAction.FillRectangle(HT_overlayX, HT_overlayY, HT_overlayWidth, HT_overlayHeight, 0x55000000)
-    olAction.DrawText("CircleAttack active`nHelltide boss spawning in " round(57 - ((A_TickCount - StartTime) / 1000.0), 1) " seconds...", HT_overlayX, HT_overlayY + 5, 20, 0x66FFFFFF, "Bahnschrift", "w400,aCenter")
+    olAction.DrawText("CircleAttack active`nHelltide boss spawning in " round(57 - ((A_TickCount - StartTime) / 1000.0), 0) " seconds...", HT_overlayX, HT_overlayY + 5, 20, 0x66FFFFFF, "Bahnschrift", "w400,aCenter")
     olAction.EndDraw()
   }
 return
@@ -522,12 +505,10 @@ autoheal:
       currZone := readCurrentZone(d4hWnd)
       if (currZone != "") {
         if (!isInTown(currZone)) {
+          Critical, On
           PixelGetColor, Res_pixelClr, %pxlCoord_lowHPX%, %pxlCoord_lowHPY%, RGB
           SplitBGR2HSL(Res_pixelClr, AH_hue, AH_sat, AH_Luminosity)
-          ;clrSim := CheckColorSimilarity(pxlClr_lowHP, Res_pixelClr)
           If (AH_hue > 0) {
-            ;ControlSend, , {6}, % "ahk_id " d4hWnd
-            ;ControlSend, , {q}, % "ahk_id " d4hWnd
             SendInput {6}
             SendInput {q}
             ;potCounter++
@@ -535,6 +516,7 @@ autoheal:
             ;FormatTime, curTime, % A_Now, hh:mm:ss tt
             ;FileAppend, % curTime ": AUTO HEAL TRIGGERED! (found clr: " Res_pixelClr " | hue: " AH_hue " > sat: " AH_sat " | similarity: " clrSim ")`n", autoheal.log
           }
+          Critical, Off
         }
       }
     }
@@ -567,13 +549,13 @@ WatchActivebuffs:
               aSkills[A_Index].saturation := acSat
               aSkills[A_Index].x := barX - 210 + ((a_index - 1) * (sourceWidth + sourcePadding))
               aSkills[A_Index].y := barY
-              aSkills[A_Index].active := true            
+              aSkills[A_Index].active := true
               if (acSat > cooldownSaturation) || (acSat < cooldownSaturation2) {
+                Critical, On
                 aSkills[A_Index].onCD := false
                 aSkills[A_Index].rdy := true
-                ;SendInput {%A_Index%}
-                ;ControlSend, , {%A_Index%}, % "ahk_id " d4hWnd
                 SendInput {%A_Index%}
+                Critical, Off
                 ;FormatTime, curTime, % A_Now, hh:mm:ss tt
                 ;FileAppend, % curTime ": AutoCast triggered! [func took: " A_TickCount - wabStartTime "ms] (found clr: " Res_pixelClr " | hue: " acHue " | sat: " acSat "`n", wab.log
               } else {
@@ -848,8 +830,7 @@ InfoSplash(strMsg)
     info_overlay.SetPosition(0, 0)
     info_overlay.EndDraw()
     WinSet, Transparent, 255, % "ahk_id " info_overlay.hwnd
-    WinSet, Transparent, off, % "ahk_id " info_overlay.hwnd
-    WinSet, Redraw ,, % "ahk_id " info_overlay.hwnd
+    WinSet, Redraw, , % "ahk_id " info_overlay.hwnd
   }
   SetTimer, kill_InfoOverlay, -2500
 }
@@ -857,28 +838,18 @@ InfoSplash(strMsg)
 kill_InfoOverlay:
   info_overlay.BeginDraw()
   newx := 0
-  offset := random(0, 1)
-  if(offset)
-    offset := 10
-  else
-    offset := -10
-  Critical, On
-  loop, 40
+  offset := random(0, 1) + 0 = 0 ? -2 : 2 
+  loop, 160
   {
     newx := newx + offset
-    alpha := 255 - Ceil(A_Index/40 * 255)
+    alpha := 255 - Ceil(A_Index/160 * 255)
     info_overlay.SetPosition(newx, info_overlayY)
-    WinSet, Transparent, %alpha%, % "ahk_id " info_overlay.hwnd
-    WinSet, Redraw ,, % "ahk_id " info_overlay.hwnd
-    sleep, 1
+    WinSet, Transparent, % alpha, % "ahk_id " info_overlay.hwnd
+    WinSet, Redraw, , % "ahk_id " info_overlay.hwnd
+    if Mod(a_index, 2) = 0
+      sleep, 1
   }
-  Critical, Off
   info_overlay.EndDraw()
-return
-
-kill_CursorPosOL:
-  olAction.BeginDraw()
-  olAction.EndDraw()
 return
 
 CheckColorSimilarity(targetColor, color)
