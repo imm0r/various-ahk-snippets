@@ -87,12 +87,12 @@ class PoE2EntityReader extends PoE2ComponentDecoders
         bfsFloor := this._radarMode ? 64 : 512
         if (maxVisited < bfsFloor)
             maxVisited := bfsFloor
-        radarVisitedCap := this._radarMode ? 300 : 6000
+        radarVisitedCap := this._radarMode ? 600 : 6000
         if (maxVisited > radarVisitedCap)
             maxVisited := radarVisitedCap
 
-        ; Time budget: radar gets 15ms, full scan gets 80ms
-        bfsBudgetMs  := this._radarMode ? 15 : 80
+        ; Time budget: radar gets 25ms, full scan gets 80ms
+        bfsBudgetMs  := this._radarMode ? 25 : 80
         deadlineTick := A_TickCount + bfsBudgetMs
         bfsIter      := 0
 
