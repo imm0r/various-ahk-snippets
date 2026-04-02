@@ -329,7 +329,7 @@ class PoE2Offsets
         "ChatParentPtr",              0x5C0,
         "PassiveSkillTreePanel",      0x6B0,
         "MapParentPtr",               0x748,
-        "ControllerModeMapParentPtr", 0xB48
+        "ControllerModeMapParentPtr", 0xAA8
     )
 
     ; Children of MapParentPtr / ControllerModeMapParentPtr

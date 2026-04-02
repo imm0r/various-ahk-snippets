@@ -1,0 +1,909 @@
+{
+  "schema": 1,
+  "offsets": {
+    "ImportantUiElements/ControllerModeMapParentPtr": {
+      "ahk_map": "ImportantUiElements",
+      "field": "ControllerModeMapParentPtr",
+      "cs_struct": "ImportantUiElementsOffsets",
+      "cs_file": "Objects\\States\\InGameState\\ImportantUiElementsOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0xB48",
+          "cs_value": "0xAA8",
+          "change_type": "fix",
+          "notes": ""
+        }
+      ]
+    },
+    "InGameState/AreaInstanceData": {
+      "ahk_map": "InGameState",
+      "field": "AreaInstanceData",
+      "cs_struct": "InGameStateOffset",
+      "cs_file": "Objects\\States\\InGameStateOffset.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x290",
+          "cs_value": "0x290",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "InGameState/WorldData": {
+      "ahk_map": "InGameState",
+      "field": "WorldData",
+      "cs_struct": "InGameStateOffset",
+      "cs_file": "Objects\\States\\InGameStateOffset.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x308",
+          "cs_value": "0x308",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "InGameState/UiRootStructPtr": {
+      "ahk_map": "InGameState",
+      "field": "UiRootStructPtr",
+      "cs_struct": "InGameStateOffset",
+      "cs_file": "Objects\\States\\InGameStateOffset.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x340",
+          "cs_value": "0x340",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "AreaInstance/CurrentAreaLevel": {
+      "ahk_map": "AreaInstance",
+      "field": "CurrentAreaLevel",
+      "cs_struct": "AreaInstanceOffsets",
+      "cs_file": "Objects\\States\\InGameState\\AreaInstanceOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0xC4",
+          "cs_value": "0xC4",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "AreaInstance/CurrentAreaHash": {
+      "ahk_map": "AreaInstance",
+      "field": "CurrentAreaHash",
+      "cs_struct": "AreaInstanceOffsets",
+      "cs_file": "Objects\\States\\InGameState\\AreaInstanceOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x11C",
+          "cs_value": "0x11C",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "AreaInstance/Environments": {
+      "ahk_map": "AreaInstance",
+      "field": "Environments",
+      "cs_struct": "AreaInstanceOffsets",
+      "cs_file": "Objects\\States\\InGameState\\AreaInstanceOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x970",
+          "cs_value": "0x970",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "AreaInstance/PlayerInfo": {
+      "ahk_map": "AreaInstance",
+      "field": "PlayerInfo",
+      "cs_struct": "AreaInstanceOffsets",
+      "cs_file": "Objects\\States\\InGameState\\AreaInstanceOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0xA20",
+          "cs_value": "0xA20",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "AreaInstance/TerrainMetadata": {
+      "ahk_map": "AreaInstance",
+      "field": "TerrainMetadata",
+      "cs_struct": "AreaInstanceOffsets",
+      "cs_file": "Objects\\States\\InGameState\\AreaInstanceOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0xD50",
+          "cs_value": "0xD50",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Entity/EntityDetailsPtr": {
+      "ahk_map": "Entity",
+      "field": "EntityDetailsPtr",
+      "cs_struct": "EntityOffsets",
+      "cs_file": "Objects\\States\\InGameState\\EntityOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x8",
+          "cs_value": "0x8",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Entity/Id": {
+      "ahk_map": "Entity",
+      "field": "Id",
+      "cs_struct": "EntityOffsets",
+      "cs_file": "Objects\\States\\InGameState\\EntityOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x80",
+          "cs_value": "0x80",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "ComponentHeader/StaticPtr": {
+      "ahk_map": "ComponentHeader",
+      "field": "StaticPtr",
+      "cs_struct": "ComponentHeader",
+      "cs_file": "Objects\\Components\\ComponentHeader.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x0",
+          "cs_value": "0x0",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "ComponentHeader/EntityPtr": {
+      "ahk_map": "ComponentHeader",
+      "field": "EntityPtr",
+      "cs_struct": "ComponentHeader",
+      "cs_file": "Objects\\Components\\ComponentHeader.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x8",
+          "cs_value": "0x8",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Targetable/IsTargetable": {
+      "ahk_map": "Targetable",
+      "field": "IsTargetable",
+      "cs_struct": "TargetableOffsets",
+      "cs_file": "Objects\\Components\\Targetable.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x51",
+          "cs_value": "0x51",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Targetable/IsHighlightable": {
+      "ahk_map": "Targetable",
+      "field": "IsHighlightable",
+      "cs_struct": "TargetableOffsets",
+      "cs_file": "Objects\\Components\\Targetable.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x52",
+          "cs_value": "0x52",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Targetable/MeetsQuestState": {
+      "ahk_map": "Targetable",
+      "field": "MeetsQuestState",
+      "cs_struct": "TargetableOffsets",
+      "cs_file": "Objects\\Components\\Targetable.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x56",
+          "cs_value": "0x56",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Targetable/NeedsTrue": {
+      "ahk_map": "Targetable",
+      "field": "NeedsTrue",
+      "cs_struct": "TargetableOffsets",
+      "cs_file": "Objects\\Components\\Targetable.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x58",
+          "cs_value": "0x58",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Targetable/NeedsFalse": {
+      "ahk_map": "Targetable",
+      "field": "NeedsFalse",
+      "cs_struct": "TargetableOffsets",
+      "cs_file": "Objects\\Components\\Targetable.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x5A",
+          "cs_value": "0x5A",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Render/CurrentWorldPosition": {
+      "ahk_map": "Render",
+      "field": "CurrentWorldPosition",
+      "cs_struct": "RenderOffsets",
+      "cs_file": "Objects\\Components\\Render.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x138",
+          "cs_value": "0x138",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Render/TerrainHeight": {
+      "ahk_map": "Render",
+      "field": "TerrainHeight",
+      "cs_struct": "RenderOffsets",
+      "cs_file": "Objects\\Components\\Render.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x1B0",
+          "cs_value": "0x1B0",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Chest/IsOpened": {
+      "ahk_map": "Chest",
+      "field": "IsOpened",
+      "cs_struct": "ChestOffsets",
+      "cs_file": "Objects\\Components\\Chest.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x168",
+          "cs_value": "0x168",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "ChestData/IsLabelVisible": {
+      "ahk_map": "ChestData",
+      "field": "IsLabelVisible",
+      "cs_struct": "ChestOffsets",
+      "cs_file": "Objects\\Components\\Chest.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x21",
+          "cs_value": "0x21",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "ChestData/StrongboxDatPtr": {
+      "ahk_map": "ChestData",
+      "field": "StrongboxDatPtr",
+      "cs_struct": "ChestOffsets",
+      "cs_file": "Objects\\Components\\Chest.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x50",
+          "cs_value": "0x50",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Shrine/IsUsed": {
+      "ahk_map": "Shrine",
+      "field": "IsUsed",
+      "cs_struct": "ShrineOffsets",
+      "cs_file": "Objects\\Components\\Shrine.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x24",
+          "cs_value": "0x24",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Positioned/Reaction": {
+      "ahk_map": "Positioned",
+      "field": "Reaction",
+      "cs_struct": "PositionedOffsets",
+      "cs_file": "Objects\\Components\\Positioned.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x1E0",
+          "cs_value": "0x1E0",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Actor/AnimationId": {
+      "ahk_map": "Actor",
+      "field": "AnimationId",
+      "cs_struct": "ActorOffset",
+      "cs_file": "Objects\\Components\\Actor.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x8A0",
+          "cs_value": "0x8A0",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Animated/AnimatedEntityPtr": {
+      "ahk_map": "Animated",
+      "field": "AnimatedEntityPtr",
+      "cs_struct": "AnimatedOffsets",
+      "cs_file": "Objects\\Components\\Animated.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x280",
+          "cs_value": "0x280",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Buffs/StatusEffectPtr": {
+      "ahk_map": "Buffs",
+      "field": "StatusEffectPtr",
+      "cs_struct": "BuffsOffsets",
+      "cs_file": "Objects\\Components\\Buffs.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x160",
+          "cs_value": "0x160",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Stats/CurrentWeaponIndex": {
+      "ahk_map": "Stats",
+      "field": "CurrentWeaponIndex",
+      "cs_struct": "StatsOffsets",
+      "cs_file": "Objects\\Components\\Stats.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x168",
+          "cs_value": "0x168",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Life/Health": {
+      "ahk_map": "Life",
+      "field": "Health",
+      "cs_struct": "LifeOffset",
+      "cs_file": "Objects\\Components\\Life.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x1A8",
+          "cs_value": "0x1A8",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Life/Mana": {
+      "ahk_map": "Life",
+      "field": "Mana",
+      "cs_struct": "LifeOffset",
+      "cs_file": "Objects\\Components\\Life.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x1F8",
+          "cs_value": "0x1F8",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Life/EnergyShield": {
+      "ahk_map": "Life",
+      "field": "EnergyShield",
+      "cs_struct": "LifeOffset",
+      "cs_file": "Objects\\Components\\Life.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x230",
+          "cs_value": "0x230",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Charges/ChargesInternalPtr": {
+      "ahk_map": "Charges",
+      "field": "ChargesInternalPtr",
+      "cs_struct": "ChargesOffsets",
+      "cs_file": "Objects\\Components\\Charges.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x10",
+          "cs_value": "0x10",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Stack/UnknownPtr": {
+      "ahk_map": "Stack",
+      "field": "UnknownPtr",
+      "cs_struct": "StackOffsets",
+      "cs_file": "Objects\\Components\\StackOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x10",
+          "cs_value": "0x10",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Stack/Count": {
+      "ahk_map": "Stack",
+      "field": "Count",
+      "cs_struct": "StackOffsets",
+      "cs_file": "Objects\\Components\\StackOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x18",
+          "cs_value": "0x18",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Player/Name": {
+      "ahk_map": "Player",
+      "field": "Name",
+      "cs_struct": "PlayerOffsets",
+      "cs_file": "Objects\\Components\\Player.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x1B0",
+          "cs_value": "0x1B0",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Player/Xp": {
+      "ahk_map": "Player",
+      "field": "Xp",
+      "cs_struct": "PlayerOffsets",
+      "cs_file": "Objects\\Components\\Player.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x1D8",
+          "cs_value": "0x1D8",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "Player/Level": {
+      "ahk_map": "Player",
+      "field": "Level",
+      "cs_struct": "PlayerOffsets",
+      "cs_file": "Objects\\Components\\Player.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x204",
+          "cs_value": "0x204",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "TriggerableBlockage/IsBlocked": {
+      "ahk_map": "TriggerableBlockage",
+      "field": "IsBlocked",
+      "cs_struct": "TriggerableBlockageOffsets",
+      "cs_file": "Objects\\Components\\TriggerableBlockage.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x30",
+          "cs_value": "0x30",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "WorldAreaDat/IdPtr": {
+      "ahk_map": "WorldAreaDat",
+      "field": "IdPtr",
+      "cs_struct": "WorldAreaDatOffsets",
+      "cs_file": "Objects\\FilesStructures\\WorldAreaDatOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x0",
+          "cs_value": "0x0",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "WorldAreaDat/NamePtr": {
+      "ahk_map": "WorldAreaDat",
+      "field": "NamePtr",
+      "cs_struct": "WorldAreaDatOffsets",
+      "cs_file": "Objects\\FilesStructures\\WorldAreaDatOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x8",
+          "cs_value": "0x8",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "WorldAreaDat/Act": {
+      "ahk_map": "WorldAreaDat",
+      "field": "Act",
+      "cs_struct": "WorldAreaDatOffsets",
+      "cs_file": "Objects\\FilesStructures\\WorldAreaDatOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x10",
+          "cs_value": "0x10",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "WorldAreaDat/IsTown": {
+      "ahk_map": "WorldAreaDat",
+      "field": "IsTown",
+      "cs_struct": "WorldAreaDatOffsets",
+      "cs_file": "Objects\\FilesStructures\\WorldAreaDatOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x14",
+          "cs_value": "0x14",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "WorldAreaDat/HasWaypoint": {
+      "ahk_map": "WorldAreaDat",
+      "field": "HasWaypoint",
+      "cs_struct": "WorldAreaDatOffsets",
+      "cs_file": "Objects\\FilesStructures\\WorldAreaDatOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x15",
+          "cs_value": "0x15",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "ImportantUiElements/ChatParentPtr": {
+      "ahk_map": "ImportantUiElements",
+      "field": "ChatParentPtr",
+      "cs_struct": "ImportantUiElementsOffsets",
+      "cs_file": "Objects\\States\\InGameState\\ImportantUiElementsOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x5C0",
+          "cs_value": "0x5C0",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "ImportantUiElements/PassiveSkillTreePanel": {
+      "ahk_map": "ImportantUiElements",
+      "field": "PassiveSkillTreePanel",
+      "cs_struct": "ImportantUiElementsOffsets",
+      "cs_file": "Objects\\States\\InGameState\\ImportantUiElementsOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x6B0",
+          "cs_value": "0x6B0",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "ImportantUiElements/MapParentPtr": {
+      "ahk_map": "ImportantUiElements",
+      "field": "MapParentPtr",
+      "cs_struct": "ImportantUiElementsOffsets",
+      "cs_file": "Objects\\States\\InGameState\\ImportantUiElementsOffsets.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x748",
+          "cs_value": "0x748",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "UiElementBase/ParentPtr": {
+      "ahk_map": "UiElementBase",
+      "field": "ParentPtr",
+      "cs_struct": "UiElementBaseOffset",
+      "cs_file": "Objects\\UiElement\\UiElementBaseOffset.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0xB8",
+          "cs_value": "0xB8",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "MapUiElement/Shift": {
+      "ahk_map": "MapUiElement",
+      "field": "Shift",
+      "cs_struct": "MapUiElementOffset",
+      "cs_file": "Objects\\UiElement\\MapUiElement.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x340",
+          "cs_value": "0x340",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "MapUiElement/DefaultShift": {
+      "ahk_map": "MapUiElement",
+      "field": "DefaultShift",
+      "cs_struct": "MapUiElementOffset",
+      "cs_file": "Objects\\UiElement\\MapUiElement.cs",
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "0x348",
+          "cs_value": "0x348",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    }
+  },
+  "patterns": {
+    "Game States": {
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "48 39 2D ^ ?? ?? ?? ?? 0F 85 16 01 00 00",
+          "cs_value": "48 39 2D ^ ?? ?? ?? ?? 0F 85 16 01 00 00",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "File Root": {
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "48 8B 0D ^ ?? ?? ?? ?? E8 ?? ?? ?? ?? E8",
+          "cs_value": "48 8B 0D ^ ?? ?? ?? ?? E8 ?? ?? ?? ?? E8",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "AreaChangeCounter": {
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "FF 05 ^ ?? ?? ?? ?? 4C 8B 06",
+          "cs_value": "FF 05 ^ ?? ?? ?? ?? 4C 8B 06",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    },
+    "GameCullSize": {
+      "events": [
+        {
+          "date": "2026-04-02",
+          "game_version": "4.4.0.10",
+          "cs_commit": "75d4887",
+          "ahk_value": "2B 05 ^ ?? ?? ?? ?? 45 0F 57 C9",
+          "cs_value": "2B 05 ^ ?? ?? ?? ?? 45 0F 57 C9",
+          "change_type": "initial",
+          "notes": ""
+        }
+      ]
+    }
+  }
+}

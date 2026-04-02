@@ -1,2 +1,5 @@
 # Rohdaten die vor Veröffentlichung aufgeräumt werden müssen
 dumped_tables/
+
+# Upstream-Cache (automatisch von compare_offsets.py geklont)
+.upstream_cache/
