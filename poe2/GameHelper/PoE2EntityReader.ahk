@@ -84,11 +84,17 @@ class PoE2EntityReader extends PoE2ComponentDecoders
         maxVisited := maxSample * 20
         if (size > 0 && size * 6 < maxVisited)
             maxVisited := size * 6
-        bfsFloor := this._radarMode ? 128 : 512
+        bfsFloor := this._radarMode ? 64 : 512
         if (maxVisited < bfsFloor)
             maxVisited := bfsFloor
-        if (maxVisited > 6000)
-            maxVisited := 6000
+        radarVisitedCap := this._radarMode ? 300 : 6000
+        if (maxVisited > radarVisitedCap)
+            maxVisited := radarVisitedCap
+
+        ; Time budget: radar gets 15ms, full scan gets 80ms
+        bfsBudgetMs  := this._radarMode ? 15 : 80
+        deadlineTick := A_TickCount + bfsBudgetMs
+        bfsIter      := 0
 
         while (queueIndex <= queue.Length)
         {
@@ -97,6 +103,15 @@ class PoE2EntityReader extends PoE2ComponentDecoders
             if (candidates.Length >= maxCandidates && npcCandidateCount >= minNpcCandidates)
                 break
 
+            ; Check time budget every 50 iterations to avoid per-iteration overhead
+            bfsIter += 1
+            if (bfsIter >= 50)
+            {
+                bfsIter := 0
+                if (A_TickCount > deadlineTick)
+                    break
+            }
+
             node := queue[queueIndex]
             queueIndex += 1
             if !this.IsProbablyValidPointer(node)
@@ -104,10 +119,9 @@ class PoE2EntityReader extends PoE2ComponentDecoders
             if (node = head)
                 continue
 
-            key := PoE2GameStateReader.Hex(node)
-            if visited.Has(key)
+            if visited.Has(node)
                 continue
-            visited[key] := true
+            visited[node] := true
 
             left  := this.Mem.ReadPtr(node + PoE2Offsets.StdMapNode["Left"])
             right := this.Mem.ReadPtr(node + PoE2Offsets.StdMapNode["Right"])
