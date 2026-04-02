@@ -137,14 +137,24 @@ return
 ; Updates the status bar text with the current PoE2 patch version and last-update timestamp.
 UpdateStatusBar()
 {
-    global statusBar, g_radarReadMs, g_radarRenderMs, g_profReadLastMs, g_profReadAvgMs, g_profTreeLastMs, g_profTotalLastMs
-    static _readLastMs := 0, _treeLastMs := 0, _totalLastMs := 0
+    global statusBar, g_radarReadMs, g_radarRenderMs, g_profReadLastMs, g_profReadAvgMs, g_profTreeLastMs, g_profTotalLastMs, reader
     patch := GetLastKnownPoeVersion()
     now   := FormatTime(A_Now, "HH:mm:ss")
+
+    ; Radar sub-timings from PoE2MemoryReader.RadarTimings
+    radarDetail := ""
+    try
+    {
+        rt := reader.RadarTimings
+        if IsObject(rt)
+            radarDetail := "  radar-detail: state=" rt["state"] " player=" rt["player"] " ui=" rt["ui"] " awake=" rt["awake"] " sleep=" rt["sleep"] " filter=" rt["filter"]
+    }
+
     text  := "PoE2 v" (patch != "" ? patch : "unknown") "   |   Last update: " now
            . "   |   Profiling(ms): read=" g_profReadLastMs "(avg=" g_profReadAvgMs ")"
            . "  tree=" g_profTreeLastMs "  total=" g_profTotalLastMs
            . "  radar=r" g_radarReadMs "+d" g_radarRenderMs
+           . radarDetail
     statusBar.Text := text
 }
 

@@ -1498,6 +1498,8 @@ class PoE2GameStateReader extends PoE2InventoryReader
         if (!this.Mem.Handle || !this.GameStatesAddress)
             return 0
 
+        t0 := A_TickCount
+
         ; Re-resolve InGameState address every 800ms — the 12-state loop is expensive at 100ms.
         nowTick := A_TickCount
         if (!this._radarInGameStateCache || (nowTick - this._radarInGameStateTick) > 800)
@@ -1535,6 +1537,7 @@ class PoE2GameStateReader extends PoE2InventoryReader
             this._radarInGameStateCache := resolved
             this._radarInGameStateTick := nowTick
         }
+        t1 := A_TickCount  ; after state resolution
         inGameStateAddress := this._radarInGameStateCache
 
         areaInstanceData := this.Mem.ReadPtr(inGameStateAddress + PoE2Offsets.InGameState["AreaInstanceData"])
@@ -1546,6 +1549,7 @@ class PoE2GameStateReader extends PoE2InventoryReader
         localPlayerRawPtr := this.Mem.ReadPtr(playerInfoPtr + PoE2Offsets.LocalPlayerStruct["LocalPlayerPtr"])
         localPlayerPtr    := this.ResolveEntityPointer(localPlayerRawPtr)
         playerRenderComponent := this.ReadPlayerRenderComponent(localPlayerPtr)
+        t2 := A_TickCount  ; after player read
 
         ; Map UI element data — re-read only every 400ms to avoid expensive UI tree walk at 100ms.
         ; Map positions/zoom rarely change mid-frame; re-reading less often has no visible impact.
@@ -1564,7 +1568,7 @@ class PoE2GameStateReader extends PoE2InventoryReader
             this._radarUiCache := importantUiElements
             this._radarUiCacheTick := nowTick
         }
-        importantUiElements := this._radarUiCache
+        t3 := A_TickCount  ; after UI cache
 
         ; Entity positions using radar-only decode (Render + Life + Positioned).
         ; Radar uses smaller limits than the full snapshot for faster 100ms updates.
@@ -1584,6 +1588,8 @@ class PoE2GameStateReader extends PoE2InventoryReader
         {
             awakeEntities := emptyEntitySummary
         }
+        t4 := A_TickCount  ; after awake entity read
+
         try
         {
             ; Skip sleeping entity read entirely when limit is 0.
@@ -1597,11 +1603,24 @@ class PoE2GameStateReader extends PoE2InventoryReader
         {
             sleepingEntities := emptyEntitySummary
         }
+        t5 := A_TickCount  ; after sleeping entity read
 
         ; Apply stale-entity filter (port of upstream commit 75d48872):
         ; entities dead for StaleEntityFrameThreshold consecutive ticks are permanently blacklisted.
         awakeEntities    := this._FilterStaleRadarEntities(awakeEntities,    areaInstanceData)
         sleepingEntities := this._FilterStaleRadarEntities(sleepingEntities, areaInstanceData)
+        t6 := A_TickCount  ; after filter
+
+        ; Store sub-timings for display in status bar (all in ms).
+        this.RadarTimings := Map(
+            "state",   t1 - t0,
+            "player",  t2 - t1,
+            "ui",      t3 - t2,
+            "awake",   t4 - t3,
+            "sleep",   t5 - t4,
+            "filter",  t6 - t5,
+            "total",   t6 - t0
+        )
 
         return Map(
             "inGameState", Map(
