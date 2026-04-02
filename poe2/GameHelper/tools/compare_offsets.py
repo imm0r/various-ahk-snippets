@@ -22,11 +22,12 @@ from collections import defaultdict
 
 # ── Pfade ──────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).parent
-AHK_OFFSETS  = SCRIPT_DIR / "PoE2Offsets.ahk"
-AHK_PATTERNS = SCRIPT_DIR / "StaticOffsetsPatterns.ahk"
-PATCH_FILE   = SCRIPT_DIR / "last_known_patch.txt"
-HISTORY_FILE = SCRIPT_DIR / "offset_history.json"
-CACHE_DIR    = SCRIPT_DIR / ".upstream_cache"
+ROOT_DIR     = SCRIPT_DIR.parent          # GameHelper/ (tools/ liegt eine Ebene höher)
+AHK_OFFSETS  = ROOT_DIR / "PoE2Offsets.ahk"
+AHK_PATTERNS = ROOT_DIR / "StaticOffsetsPatterns.ahk"
+PATCH_FILE   = ROOT_DIR / "last_known_patch.txt"
+HISTORY_FILE = ROOT_DIR / "offset_history.json"
+CACHE_DIR    = ROOT_DIR / ".upstream_cache"
 
 GITLAB_URL   = "https://gitlab.com/bylafko/gamehelper2"
 CS_OFFSETS_REL = "GameOffsets"   # Pfad innerhalb des Repos
