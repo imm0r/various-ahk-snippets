@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "ahk2",
+            "request": "launch",
+            "name": "AutoHotkey v2 Debugger",
+            "program": "",
+            "stopOnEntry": true
+        },
+        {
+            "name": "Run InGameStateMonitor",
+            "type": "ahk",
+            "request": "launch",
+            "program": "${workspaceFolder}\\InGameStateMonitor.ahk"
+        }
+    ]
+}

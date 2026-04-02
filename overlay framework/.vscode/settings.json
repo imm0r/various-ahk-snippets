@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.ahk": "autohotkey"
+    },
+    "[autohotkey]": {
+        "editor.defaultFormatter": "thqby.autohotkey2"
+    },
+    "autohotkey.executePath": "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe",
+    "autohotkey.version": "1.1"
+}

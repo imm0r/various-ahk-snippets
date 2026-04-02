@@ -21,6 +21,10 @@ lastSnapshotForUi := 0
 g_radarOverlay := 0   ; lazy-init beim ersten Render-Aufruf
 g_radarReadMs   := 0  ; Last ReadRadarSnapshot() duration (ms)
 g_radarRenderMs := 0  ; Last RadarOverlay.Render() duration (ms)
+g_profReadLastMs  := 0
+g_profReadAvgMs   := 0
+g_profTreeLastMs  := 0
+g_profTotalLastMs := 0
 offsetTableRowPathByRow := Map()
 offsetPreviousValueByPath := Map()
 offsetTableSortCol := 1
@@ -133,10 +137,14 @@ return
 ; Updates the status bar text with the current PoE2 patch version and last-update timestamp.
 UpdateStatusBar()
 {
-    global statusBar
+    global statusBar, g_radarReadMs, g_radarRenderMs, g_profReadLastMs, g_profReadAvgMs, g_profTreeLastMs, g_profTotalLastMs
+    static _readLastMs := 0, _treeLastMs := 0, _totalLastMs := 0
     patch := GetLastKnownPoeVersion()
     now   := FormatTime(A_Now, "HH:mm:ss")
     text  := "PoE2 v" (patch != "" ? patch : "unknown") "   |   Last update: " now
+           . "   |   Profiling(ms): read=" g_profReadLastMs "(avg=" g_profReadAvgMs ")"
+           . "  tree=" g_profTreeLastMs "  total=" g_profTotalLastMs
+           . "  radar=r" g_radarReadMs "+d" g_radarRenderMs
     statusBar.Text := text
 }
 
@@ -448,7 +456,7 @@ ReadAndShow(forceTreeRefresh := false)
     {
     global reader, valueTree, nodePaths, debugMode, updatesPaused, autoFlaskEnabled, flaskKeyLoadStatus, flaskKeyBySlot, showTreePane
     global lifeThresholdPercent, manaThresholdPercent, autoFlaskLastReason, autoFlaskStatusText, hotkeyLegendText, autoFlaskPerformanceMode, lastSnapshotForUi
-    global treeRefreshRequested
+    global treeRefreshRequested, g_profReadLastMs, g_profReadAvgMs, g_profTreeLastMs, g_profTotalLastMs
 
     if (updatesPaused && !forceTreeRefresh)
         return
@@ -536,6 +544,10 @@ ReadAndShow(forceTreeRefresh := false)
         treeRefreshRequested := false
     }
     _totalLastMs := A_TickCount - totalStart
+    g_profReadLastMs  := _readLastMs
+    g_profReadAvgMs   := readAvgMs
+    g_profTreeLastMs  := _treeLastMs
+    g_profTotalLastMs := _totalLastMs
     UpdateOffsetTable(snapshot)
     }
     catch as ex

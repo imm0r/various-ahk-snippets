@@ -12,5 +12,4 @@
 
 ## Git
 
-- Commits immer mit Trailer: `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`
 - `dumped_tables/` und `.upstream_cache/` nicht committen (→ `.gitignore`).

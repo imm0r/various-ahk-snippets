@@ -55,7 +55,7 @@ Hawezar.push("Savage Precipice", "The Fallow Tillage", "Zarbinzet", "Faith's Edg
           , "Valtha's Hovel")
 
 AreaLocations_towns := object()
-AreaLocations_towns.push("Kyovashad", "Bear Tribe Refuge", "Margrave", "Menestad", "Nevesk", "Nostrava", "Yelesna", "Cerrigar", "Braestaig", "Corbach", "Firebreak Manor", "Marowen", "Tirmair", "Túr Dúlra", "Ed Bardu", "Alzuuda"
+AreaLocations_towns.push("Kyovashad", "Bear Tribe Refuge", "Margrave", "Menestad", "Nevesk", "Nostrava", "Yelesna", "Cerrigar", "Braestaig", "Corbach", "Firebreak Manor", "Marowen", "Tirmair", "Tï¿½r Dï¿½lra", "Ed Bardu", "Alzuuda"
           , "Farobru", "Jirandai", "The Onyx Watchtower", "Zarbinzet", "Backwater", "The Tree of Whispers", "Vyeresz", "Wejinhani", "Gea Kul", "Denshar", "Iron Wolves Encampment", "Tarsarak")
 
 AreaLocations := object()

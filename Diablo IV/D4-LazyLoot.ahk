@@ -7,12 +7,14 @@ SetControlDelay -1
 #InstallKeybdHook
 #InstallMouseHook
 
+#include gui.ahk
 #include <ocr>
 #include <Class_Color>
 #include <lib_gdipSwitch>
 #include <shinsoverlayclass>
 #Include <stringsimilarity>
 #include %A_ScriptDir%\plugins\AreaLocations.ahk
+#include %A_ScriptDir%\plugins\affixes.ahk
 
 if (!WinExist("Diablo IV")) {
   msgbox % "Please run Diablo IV and press OK to reload"
@@ -56,8 +58,15 @@ clr.chat.sat := 20
 
 ; Array holding the position for the mapName
 mapName := []
-mapName.width := 330, mapName.heigth := 40
-mapName.x := 2850, mapName.y := 1
+mapName.width := 300, mapName.heigth := 40
+mapName.x := 3050, mapName.y := 15
+
+; Array holding the position for masterworking
+aMasterWorking := [], aMasterWorking.reset := [], aMasterWorking.upgrade := [], aMasterWorking.confirm := [], aMasterWorking.close := []
+aMasterWorking.reset.x := 575, aMasterWorking.reset.y := 465
+aMasterWorking.upgrade.x := 660, aMasterWorking.upgrade.y := 1200
+aMasterWorking.confirm.x := 365, aMasterWorking.confirm.y := 1265
+aMasterWorking.close.x := 470, aMasterWorking.close.y := 1095
 
 aSkills := []
 lastX := 0, lastY := 0, firstTime := 1
@@ -95,6 +104,14 @@ HT_info_overlayWidth := 400, HT_info_overlayHeight := 70
 HT_info_overlayX := (A_ScreenWidth // 2) - (HT_info_overlayWidth // 2)
 HT_info_overlayY := (A_ScreenHeight // 3.6313) - (HT_info_overlayHeight)
 
+; masterworking global init
+mwStep := 0
+
+; string locations
+strings := [], strings.locations := [], strings.locations.masterworking := []
+strings.locations.masterworking.x := 50, strings.locations.masterworking.y := 850
+strings.locations.masterworking.width := 850, strings.locations.masterworking.heigth := 160
+
 oStringSimilarity := new stringsimilarity()
 
 ; init D4 hwnd and activate it
@@ -121,21 +138,121 @@ mPos_overlay := new ShinsoverlayClass("Diablo IV")
 info_overlay := new ShinsoverlayClass("Diablo IV")
 olAction := new ShinsoverlayClass("Diablo IV")
 olState := new ShinsoverlayClass("Diablo IV")
-elipseOL := new ShinsoverlayClass("Diablo IV")
-;elipseOL := new ShinsoverlayClass(1, 1, A_ScreenWidth, A_ScreenHeight, 1, vsync:=0, clickThrough:=1)
+elipseOL := new ShinsoverlayClass("Diablo IV",,,1)
 
 ;SetTimer, memWatch, 1500
 
+;CmdGui()
 return
+
+
+#include %A_ScriptDir%\plugins\gLabels.ahk
 
 ;Hotkeys
 F11::reload
 F12::exitapp
 
+; Masterworking
+; upgrading x4
+F7::
+  if (WinExist("ahk_id " d4hWnd)) {
+    if infoOverlayActive
+      SetTimer, kill_InfoOverlay, -1
+    if (WinActive("ahk_id " d4hWnd)) {
+
+      MWGui()
+      /*
+      Loop, 4
+      {
+        ControlClick, % "x" aMasterWorking.upgrade.x " y" aMasterWorking.upgrade.y, % "ahk_id " d4hWnd,,,, Pos
+        Sleep, % random(250, 370)
+      }
+      ControlClick, % "x" aMasterWorking.close.x " y" aMasterWorking.close.y, % "ahk_id " d4hWnd,,,, Pos
+      sleep, % random(1410, 1590)
+      res_mwCrit := readMasterworkingCrit(d4hWnd)
+      clipboard := res_mwCrit
+      InfoSplash(res_mwCrit)
+      ControlClick, % "x" aMasterWorking.close.x " y" aMasterWorking.close.y, % "ahk_id " d4hWnd,,,, Pos
+      */
+    }
+  }
+return
+
+mw_reset() {
+  global
+  if (WinExist("ahk_id " d4hWnd)) {
+    if infoOverlayActive
+      SetTimer, kill_InfoOverlay, -1
+    WinActivate, % "ahk_id " d4hWnd
+    sleep, 50
+    if (WinActive("ahk_id " d4hWnd)) {
+      GuiControl, , ActionLog, % "reset masterworking rank"
+      ControlClick, % "x" aMasterWorking.reset.x " y" aMasterWorking.reset.y, % "ahk_id " d4hWnd,,,, Pos
+      sleep, % random(70, 110)
+      ControlClick, % "x" aMasterWorking.confirm.x " y" aMasterWorking.confirm.y, % "ahk_id " d4hWnd,,,, Pos
+      Sleep, % random(175, 320)
+    }
+  }
+}
+mw_upgrade() {
+  global
+  if (WinExist("ahk_id " d4hWnd)) {
+    if infoOverlayActive
+      SetTimer, kill_InfoOverlay, -1
+    WinActivate, % "ahk_id " d4hWnd
+    sleep, 50
+    if (WinActive("ahk_id " d4hWnd)) {
+      Loop, 4
+      {
+        ControlClick, % "x" aMasterWorking.upgrade.x " y" aMasterWorking.upgrade.y, % "ahk_id " d4hWnd,,,, Pos
+        Sleep, % random(250, 370)
+        GuiControl, , CurrMWlvl, % mwStep + A_Index "/12"
+        GuiControl, , ActionLog, % "upgrade masterworking rank"
+      }
+      ControlClick, % "x" aMasterWorking.close.x " y" aMasterWorking.close.y, % "ahk_id " d4hWnd,,,, Pos
+      sleep, % random(1410, 1590)
+      res_mwCrit := readMasterworkingCrit(d4hWnd)
+      clipboard := res_mwCrit
+      InfoSplash(res_mwCrit)
+      ControlClick, % "x" aMasterWorking.close.x " y" aMasterWorking.close.y, % "ahk_id " d4hWnd,,,, Pos
+      return, % res_mwCrit
+    }
+  }
+}
+
+; reset
+F8::
+  if (WinExist("ahk_id " d4hWnd)) {
+    if infoOverlayActive
+      SetTimer, kill_InfoOverlay, -1
+    if (WinActive("ahk_id " d4hWnd)) {
+      ControlClick, % "x" aMasterWorking.reset.x " y" aMasterWorking.reset.y, % "ahk_id " d4hWnd,,,, Pos
+      sleep, % random(70, 110)
+      ControlClick, % "x" aMasterWorking.confirm.x " y" aMasterWorking.confirm.y, % "ahk_id " d4hWnd,,,, Pos
+      Sleep, % random(175, 320)
+      Loop, 4
+      {
+        ControlClick, % "x" aMasterWorking.upgrade.x " y" aMasterWorking.upgrade.y, % "ahk_id " d4hWnd,,,, Pos
+        Sleep, % random(250, 370)
+      }
+      ControlClick, % "x" aMasterWorking.close.x " y" aMasterWorking.close.y, % "ahk_id " d4hWnd,,,, Pos
+      sleep, % random(1410, 1590)
+      res_mwCrit := readMasterworkingCrit(d4hWnd)
+      clipboard := res_mwCrit
+      InfoSplash(res_mwCrit)
+      ControlClick, % "x" aMasterWorking.close.x " y" aMasterWorking.close.y, % "ahk_id " d4hWnd,,,, Pos
+    }
+  }
+return
+
+F9::
+  clipboard := readMasterworkingCrit(d4hWnd)
+return
+
 ; Debugging Stuff
 F10::
-  BuffWatchPerformance := dbgFeatures()
-  msgbox, % "BuffWatch Performance`n`n100 itterations took: " BuffWatchPerformance " ms`naverage loop took: " buffwatchperformance / 100 "ms"
+  ;BuffWatchPerformance := dbgFeatures()
+  ;msgbox, % "BuffWatch Performance`n`n100 itterations took: " BuffWatchPerformance " ms`naverage loop took: " buffwatchperformance / 100 "ms"
 return
 
 ; Circle Attack
@@ -148,8 +265,8 @@ F1::
   yCenter := A_ScreenHeight / 2
   
   ; Define the ellipse's major and minor axes
-  majorAxis := A_ScreenWidth / 2
-  minorAxis := A_ScreenHeight / 2
+  majorAxis := (A_ScreenWidth / 2) * (sliderEllipse / 100)
+  minorAxis := (A_ScreenHeight / 2) * (sliderEllipse / 100)
   
   idxCircle := 1
   
@@ -164,11 +281,6 @@ F1::
   
   ; Define the mouse move speed (in milliseconds)
   moveSpeed := 0
-  
-  if (elipseOL.BeginDraw()) {
-    elipseOL.DrawEllipse(A_ScreenWidth / 2, A_ScreenHeight / 2, A_ScreenWidth  / 2, A_ScreenHeight / 2, 0xb4275132, 8)
-    elipseOL.EndDraw()
-  }
   
   ;ControlSend, , {Ctrl down}, % "ahk_id " d4hWnd
   SendInput, {Ctrl down}
@@ -188,6 +300,11 @@ F1::
     olAction.FillRectangle(HT_overlayX, HT_overlayY, HT_overlayWidth, HT_overlayHeight, 0x55000000)
     olAction.DrawText("CircleAttack active`nHelltide boss spawning in " round(57 - ((A_TickCount - StartTime) / 1000.0), 1) " seconds...", HT_overlayX, HT_overlayY + 5, 20, 0x4a9733, "Bahnschrift", "w400,aCenter")
     olAction.EndDraw()
+  }
+
+  if (elipseOL.BeginDraw()) {
+      elipseOL.DrawEllipse(A_ScreenWidth / 2, A_ScreenHeight / 2, ellipseWidth, ellipseHeight, 0xb4275132, 8)
+      elipseOL.EndDraw()
   }
   
   SetTimer, kill_InfoOverlay, -2500
@@ -476,7 +593,7 @@ memWatch:
     olState.EndDraw()
   }
 return
-  
+
 state:
   currZone := readCurrentZone(d4hWnd)
   if (isInTown(currZone))
@@ -534,7 +651,7 @@ WatchActivebuffs:
             aSkills[A_Index] := []
 
             ; define what skill to cast automatic:
-            aSkills[1].autocast := true
+            aSkills[1].autocast := false
             aSkills[2].autocast := false
             aSkills[3].autocast := true
             aSkills[4].autocast := true
@@ -601,6 +718,17 @@ MousePosDisplay:
 return
 
 ;D4 basic functions
+readMasterworkingCrit(d4hWnd)
+{
+  global strings
+  if (WinActive("ahk_id " d4hWnd)) {
+    hBitmap := HBitmapFromScreen(strings.locations.masterworking.x, strings.locations.masterworking.y, strings.locations.masterworking.width, strings.locations.masterworking.heigth)
+    pIRandomAccessStream := HBitmapToRandomAccessStream(hBitmap)
+    DllCall("DeleteObject", "Ptr", hBitmap)
+    return, % StrReplace(ocr(pIRandomAccessStream, "FirstFromAvailableLanguages"), "`n")
+  }
+}
+
 readCurrentZone(d4hWnd)
 {
   global mapName, oStringSimilarity, AreaLocations
@@ -613,7 +741,7 @@ readCurrentZone(d4hWnd)
       curMapName := SubStr(curMapName, 1 , tFound - 1)
     curMapName := StrReplace(curMapName, "`n")
     
-    return, % stringSimilarity.simpleBestMatch(curMapName, AreaLocations)
+    return, % oStringSimilarity.simpleBestMatch(curMapName, AreaLocations)
   }
 }
 
@@ -818,7 +946,7 @@ GetHwnd(process, exename) {
 
 InfoSplash(strMsg)
 {
-  global info_overlay
+  global info_overlay, infoOverlayActive
   aStrMetrics := info_overlay.GetTextMetrics(strMsg, 26, "Bahnschrift")
   info_overlayWidth := aStrMetrics.w + 20, info_overlayHeight := aStrMetrics.h + 10
   global info_overlayX := (A_ScreenWidth // 2) - (info_overlayWidth // 2)
@@ -832,7 +960,9 @@ InfoSplash(strMsg)
     WinSet, Transparent, 255, % "ahk_id " info_overlay.hwnd
     WinSet, Redraw, , % "ahk_id " info_overlay.hwnd
   }
-  SetTimer, kill_InfoOverlay, -2500
+  if infoOverlayActive
+    SetTimer, kill_InfoOverlay, -2500
+  infoOverlayActive := true
 }
 
 kill_InfoOverlay:
@@ -850,8 +980,8 @@ kill_InfoOverlay:
       sleep, 1
   }
   info_overlay.EndDraw()
+  infoOverlayActive := false
 return
-
 CheckColorSimilarity(targetColor, color)
 {
   ;split target color into rgb
