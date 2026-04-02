@@ -19,6 +19,8 @@ autoFlaskPerformanceMode := false
 pinnedNodePaths := []
 lastSnapshotForUi := 0
 g_radarOverlay := 0   ; lazy-init beim ersten Render-Aufruf
+g_radarReadMs   := 0  ; Last ReadRadarSnapshot() duration (ms)
+g_radarRenderMs := 0  ; Last RadarOverlay.Render() duration (ms)
 offsetTableRowPathByRow := Map()
 offsetPreviousValueByPath := Map()
 offsetTableSortCol := 1
@@ -435,10 +437,13 @@ ReadAndShow(forceTreeRefresh := false)
     static _readCycles := 0
     static _readTotalMs := 0
     static _readLastMs := 0
+    static _treeLastMs := 0
+    static _totalLastMs := 0
     global readAndShowRunning
     if readAndShowRunning
         return
     readAndShowRunning := true
+    totalStart := A_TickCount
     try
     {
     global reader, valueTree, nodePaths, debugMode, updatesPaused, autoFlaskEnabled, flaskKeyLoadStatus, flaskKeyBySlot, showTreePane
@@ -518,16 +523,19 @@ ReadAndShow(forceTreeRefresh := false)
 
     if doTreeRefresh
     {
+        treeStart := A_TickCount
         valueTree.Opt("-Redraw")
         valueTree.Delete()
         nodePaths := Map()
         StoreNodePathMapForActiveTab(nodePaths)
 
-        RenderActiveTreeTab(snapshot, snapshotModeText, readAvgMs, _readLastMs, entityModeText, entityOffsetText, entityFallbackAgeText, expandedPaths)
+        RenderActiveTreeTab(snapshot, snapshotModeText, readAvgMs, _readLastMs, _treeLastMs, _totalLastMs, entityModeText, entityOffsetText, entityFallbackAgeText, expandedPaths)
         RestoreTreeFocusState(treeFocus)
         valueTree.Opt("+Redraw")
+        _treeLastMs := A_TickCount - treeStart
         treeRefreshRequested := false
     }
+    _totalLastMs := A_TickCount - totalStart
     UpdateOffsetTable(snapshot)
     }
     catch as ex
@@ -586,10 +594,11 @@ StoreNodePathMapForActiveTab(paths)
 
 ; Rebuilds the active TreeView tab with snapshot data, per-read timing, and entity debug info.
 ; Delegates to tab-specific helpers (AddActiveBuffsNode, AddEntityScannerNode, BuildTreeNode, etc.).
-RenderActiveTreeTab(snapshot, snapshotModeText, readAvgMs, readLastMs, entityModeText, entityOffsetText, entityFallbackAgeText, expandedPaths)
+RenderActiveTreeTab(snapshot, snapshotModeText, readAvgMs, readLastMs, treeLastMs, totalLastMs, entityModeText, entityOffsetText, entityFallbackAgeText, expandedPaths)
 {
     global valueTree, nodePaths, reader, debugMode, updatesPaused, autoFlaskEnabled, autoFlaskPerformanceMode
     global lifeThresholdPercent, manaThresholdPercent, flaskKeyLoadStatus, autoFlaskLastReason, flaskKeyBySlot, activeTreeTabKey
+    global g_radarReadMs, g_radarRenderMs
 
     title := "Updated: " FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
        . " | PID: " reader.Mem.Pid
@@ -598,7 +607,7 @@ RenderActiveTreeTab(snapshot, snapshotModeText, readAvgMs, readLastMs, entityMod
         " | AutoFlask: " (autoFlaskEnabled ? "ON" : "OFF")
         " | AFPerf: " (autoFlaskPerformanceMode ? "ON" : "OFF")
       . " | Snap: " snapshotModeText
-      . " | Read(ms): last=" readLastMs " avg=" readAvgMs
+      . " | Profiling(ms): read=" readLastMs "(avg=" readAvgMs ") tree=" treeLastMs " total=" totalLastMs " radar=r" g_radarReadMs "+d" g_radarRenderMs
       . " | EntityMode: " StrUpper(entityModeText)
       . " | EntityOff: " entityOffsetText
       . " | FallbackAgo: " entityFallbackAgeText

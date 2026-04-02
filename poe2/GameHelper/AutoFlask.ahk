@@ -17,13 +17,15 @@ UpdateRadarFast()
     _running := true
     try
     {
-        global reader, g_radarOverlay, updatesPaused
+        global reader, g_radarOverlay, updatesPaused, g_radarReadMs, g_radarRenderMs
         if updatesPaused
             return
         if !IsObject(reader)
             return
 
+        radarReadStart := A_TickCount
         radarSnap := reader.ReadRadarSnapshot()
+        g_radarReadMs := A_TickCount - radarReadStart
         if !radarSnap
         {
             if g_radarOverlay
@@ -54,7 +56,9 @@ UpdateRadarFast()
             g_radarOverlay := RadarOverlay()
 
         WinGetPos(&gwX, &gwY, &gwW, &gwH, "ahk_id " gameHwnd)
+        radarRenderStart := A_TickCount
         g_radarOverlay.Render(radarSnap, gwX, gwY, gwW, gwH)
+        g_radarRenderMs := A_TickCount - radarRenderStart
     }
     catch as ex
     {
