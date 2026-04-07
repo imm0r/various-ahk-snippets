@@ -3,3 +3,13 @@ dumped_tables/
 
 # Upstream-Cache (automatisch von compare_offsets.py geklont)
 .upstream_cache/
+
+# Upstream-Cache (automatisch von compare_offsets.py geklont)
+.debug/
+
+# single files to ignore
+NEXT_STEPS.md
+offset_history.json
+last_known_patch.txt
+QUICKSTART.md
+InGameStateMonitor.error.log

@@ -17,7 +17,7 @@ UpdateRadarFast()
     _running := true
     try
     {
-        global reader, g_radarOverlay, updatesPaused, g_radarReadMs, g_radarRenderMs
+        global reader, g_radarOverlay, g_radarLastSnap, updatesPaused, g_radarReadMs, g_radarRenderMs
         if updatesPaused
             return
         if !IsObject(reader)
@@ -32,6 +32,7 @@ UpdateRadarFast()
                 g_radarOverlay.Hide()
             return
         }
+        g_radarLastSnap := radarSnap  ; cache for Dump Entities button
 
         ; Only show overlay when player render component is present (= truly in-game)
         inGs         := radarSnap.Has("inGameState") ? radarSnap["inGameState"] : 0
@@ -52,8 +53,26 @@ UpdateRadarFast()
             return
         }
 
+        ; Hide overlay when the game window is not the active (foreground) window
+        if !WinActive("ahk_id " gameHwnd)
+        {
+            if g_radarOverlay
+                g_radarOverlay.Hide()
+            return
+        }
+
         if !g_radarOverlay
             g_radarOverlay := RadarOverlay()
+
+        global radarShowEnemyNormal, radarShowEnemyRare, radarShowEnemyBoss, radarShowMinions, radarShowNpcs, radarShowChests
+        global debugMode
+        g_radarOverlay.ShowEnemyNormal := radarShowEnemyNormal
+        g_radarOverlay.ShowEnemyRare   := radarShowEnemyRare
+        g_radarOverlay.ShowEnemyBoss   := radarShowEnemyBoss
+        g_radarOverlay.ShowMinions := radarShowMinions
+        g_radarOverlay.ShowNpcs    := radarShowNpcs
+        g_radarOverlay.ShowChests  := radarShowChests
+        g_radarOverlay.DebugMode   := debugMode
 
         WinGetPos(&gwX, &gwY, &gwW, &gwH, "ahk_id " gameHwnd)
         radarRenderStart := A_TickCount

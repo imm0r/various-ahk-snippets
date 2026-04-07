@@ -1256,3 +1256,18 @@ _upstream_sync/extract/gamehelper2-main/Plugins/WorldDrawing/WorldDrawing.csproj
 _upstream_sync/extract/gamehelper2-main/Plugins/WorldDrawing/WorldDrawingCore.cs
 _upstream_sync/extract/gamehelper2-main/Plugins/WorldDrawing/WorldDrawingSettings.cs
 AHK-v2-script-converter-master/.gitignore
+poe2/GameHelper/InGameStateMonitor.error.log
+poe2/GameHelper/InGameStateMonitor.error.log.1
+
+# Rohdaten die vor Veröffentlichung aufgeräumt werden müssen
+poe2/GameHelper/dumped_tables/
+
+# Upstream-Cache (automatisch von compare_offsets.py geklont)
+poe2/GameHelper/upstream_cache/
+
+# Upstream-Cache (automatisch von compare_offsets.py geklont)
+poe2/GameHelper/debug/
+poe2/GameHelper/InGameStateMonitor.error.log
+poe2/GameHelper/tools/gen_ct.py
+poe2/GameHelper/tools/poe2_ce_inspector.lua
+poe2/GameHelper/tools/PoE2_Inspector.CT

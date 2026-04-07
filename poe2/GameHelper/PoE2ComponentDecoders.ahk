@@ -2,7 +2,7 @@
 ; Base class: low-level memory reading utilities and per-component-type decoders.
 ;
 ; Provides foundational methods used by the entire reader stack.
-; All methods use 	his.Mem and 	his.IsProbablyValidPointer which are
+; All methods use this.Mem and this.IsProbablyValidPointer which are
 ; defined in the top-level PoE2GameStateReader constructor.
 ;
 ; Inheritance: PoE2GameStateReader extends ... extends PoE2ComponentDecoders
@@ -854,7 +854,14 @@ class PoE2ComponentDecoders
             && (esMax >= 0 && esMax < 50000000)
             && (esCurrent >= 0 && esCurrent <= esMax + 50000)
         if !plausible
+        {
+            ; Fallback: if HP clearly reads as 0 with a plausible max HP, treat as dead.
+            ; Handles entities whose life-memory partially degrades after death (max/mana/ES
+            ; values become garbage while current-HP remains at the last-written 0).
+            if (healthCurrent = 0 && healthMax >= 1 && healthMax < 50000000)
+                return Map("address", componentPtr, "isAlive", false)
             return 0
+        }
 
         return Map(
             "address", componentPtr,

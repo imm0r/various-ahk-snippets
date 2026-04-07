@@ -52,6 +52,8 @@ GameHelper/
     ├── extract_monster_names.py
     ├── parse_index.py          — Shared: Bundle-Index Parser
     ├── analyze_shared.py       — Shared: Bundle-Reader
+    ├── poe2_ce_inspector.lua   — Cheat Engine Lua Script (Standalone, per Lua Engine laden)
+    ├── PoE2_Inspector.CT       — Cheat Engine Table (.CT): Pattern-Scan, Pointer-Chain, Address-List, Entity-Dump; Auto-run via OnOpenProcess
     └── explore_*, inspect_*   — Analyse-/Debug-Tools
 ```
 

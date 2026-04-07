@@ -43,10 +43,13 @@ class RadarOverlay
     static WORLD_TO_GRID_RATIO := 10.86957
 
     ; Dot-Farben (GDI erwartet BGR, nicht RGB)
-    static COLOR_ENEMY   := 0x0000FF   ; rot
-    static COLOR_NPC     := 0x00FF80   ; grün
-    static COLOR_CHEST   := 0x00FFFF   ; gelb
-    static COLOR_PLAYER  := 0xFFFFFF   ; weiß
+    static COLOR_ENEMY_NORMAL := 0x0000FF   ; rot   (normale Gegner)
+    static COLOR_ENEMY_RARE   := 0xFF00FF   ; magenta (seltene Gegner)
+    static COLOR_ENEMY_BOSS   := 0x00FFFF   ; gelb  (Unique/Boss)
+    static COLOR_MINION       := 0x0080FF   ; orange (eigene Minions)
+    static COLOR_NPC          := 0x00FF80   ; grün
+    static COLOR_CHEST        := 0xFFFF00   ; cyan  (Chests/Strongboxes)
+    static COLOR_PLAYER       := 0xFFFFFF   ; weiß
 
     ; Maximum world-unit radius drawn on the radar. Entities beyond this distance are skipped.
     ; 6000 world units ≈ 552 grid units — matches the outer scoring penalty in the entity sampler.
@@ -65,6 +68,20 @@ class RadarOverlay
         this.isVisible            := false
         this.stylesApplied        := false
         this._lastMiniMapDiagonal := 0   ; cached minimap diagonal used for large-map projection
+        this._lastGwX := -1, this._lastGwY := -1, this._lastGwW := 0, this._lastGwH := 0
+        this._penCache   := Map()   ; colorBGR|(width<<24) → HPEN  (created once, reused)
+        this._brushCache := Map()   ; colorBGR             → HBRUSH
+        this._bgBrush    := 0       ; cached background fill brush
+        this._frameRect  := Buffer(16, 0)  ; reused RECT for FillRect
+
+        ; Entity-Gruppen-Filter (alle standardmäßig sichtbar)
+        this.ShowEnemyNormal := true
+        this.ShowEnemyRare   := true
+        this.ShowEnemyBoss   := true
+        this.ShowMinions     := true
+        this.ShowNpcs        := true
+        this.ShowChests      := true
+        this.DebugMode       := true
     }
 
     ; Main render entry point: aligns the overlay window, clears the back-buffer, and draws all map layers.
@@ -76,8 +93,14 @@ class RadarOverlay
         if (gameWindowWidth < 100 || gameWindowHeight < 100)
             return
 
-        ; Overlay-Fenster auf das Spielfenster ausrichten (vor GDI-Operationen)
-        WinMove(gameWindowX, gameWindowY, gameWindowWidth, gameWindowHeight, this.windowHandle)
+        ; Overlay-Fenster auf das Spielfenster ausrichten — nur wenn sich Position/Größe geändert hat
+        if (gameWindowX != this._lastGwX || gameWindowY != this._lastGwY
+         || gameWindowWidth != this._lastGwW || gameWindowHeight != this._lastGwH)
+        {
+            WinMove(gameWindowX, gameWindowY, gameWindowWidth, gameWindowHeight, this.windowHandle)
+            this._lastGwX := gameWindowX, this._lastGwY := gameWindowY
+            this._lastGwW := gameWindowWidth, this._lastGwH := gameWindowHeight
+        }
         if !this.isVisible
         {
             this.overlayGui.Show("x" gameWindowX " y" gameWindowY " w" gameWindowWidth " h" gameWindowHeight " NoActivate")
@@ -95,13 +118,12 @@ class RadarOverlay
         if !this.memoryDC
             return
 
-        ; Neuen Frame mit der Transparenzfarbe füllen
-        frameRect := Buffer(16, 0)
-        NumPut("Int", gameWindowWidth,  frameRect, 8)
-        NumPut("Int", gameWindowHeight, frameRect, 12)
-        backgroundBrush := DllCall("CreateSolidBrush", "UInt", RadarOverlay.TRANSPARENT_BACKGROUND, "Ptr")
-        DllCall("FillRect", "Ptr", this.memoryDC, "Ptr", frameRect, "Ptr", backgroundBrush)
-        DllCall("DeleteObject", "Ptr", backgroundBrush)
+        ; Clear back-buffer with transparency colour (brush created once and cached)
+        if !this._bgBrush
+            this._bgBrush := DllCall("CreateSolidBrush", "UInt", RadarOverlay.TRANSPARENT_BACKGROUND, "Ptr")
+        NumPut("Int", gameWindowWidth,  this._frameRect, 8)
+        NumPut("Int", gameWindowHeight, this._frameRect, 12)
+        DllCall("FillRect", "Ptr", this.memoryDC, "Ptr", this._frameRect, "Ptr", this._bgBrush)
 
         ; Daten aus dem Snapshot extrahieren
         inGameState    := (snapshot && snapshot.Has("inGameState"))           ? snapshot["inGameState"]                 : 0
@@ -253,21 +275,22 @@ class RadarOverlay
             mapZoom := 0.5
 
         ; ── DEBUG: Kartenrahmen und Mittelpunkt ──────────────────────────────────────────
-        debugColor := isLargeMap ? 0xFFFF00 : 0xFF8800
-        this._DrawDot(Round(mapCenterX), Round(mapCenterY), debugColor, 15)
-        ; MiniMap: Rahmen startet oben-links bei mapElementScreenX/Y.
-        ; LargeMap: Position-Traversal liefert den Mittelpunkt → Rahmen zentrieren.
-        rectX := isLargeMap ? Round(mapCenterX - mapScreenWidth / 2) : Round(mapElementScreenX)
-        rectY := isLargeMap ? Round(mapCenterY - mapScreenHeight / 2) : Round(mapElementScreenY)
-        this._DrawRect(rectX, rectY, Round(mapScreenWidth), Round(mapScreenHeight), debugColor, 1)
-        debugTextRow := isLargeMap ? 32 : 16
-        this._DrawText(4, debugTextRow,
-            (isLargeMap?"L":"M") " ctr=" Round(mapCenterX) "," Round(mapCenterY)
-            " spos=" Round(mapElementScreenX) "," Round(mapElementScreenY)
-            " rawsz=" Round(mapData["sizeW"]) "x" Round(mapData["sizeH"])
-            " sz=" Round(mapScreenWidth) "x" Round(mapScreenHeight)
-            " si=" mapData["scaleIdx"] " dep=" mapData["chainDepth"] " z=" Round(mapZoom, 3),
-            debugColor)
+        if this.DebugMode
+        {
+            debugColor := isLargeMap ? 0xFFFF00 : 0xFF8800
+            this._DrawDot(Round(mapCenterX), Round(mapCenterY), debugColor, 15)
+            rectX := isLargeMap ? Round(mapCenterX - mapScreenWidth / 2) : Round(mapElementScreenX)
+            rectY := isLargeMap ? Round(mapCenterY - mapScreenHeight / 2) : Round(mapElementScreenY)
+            this._DrawRect(rectX, rectY, Round(mapScreenWidth), Round(mapScreenHeight), debugColor, 1)
+            debugTextRow := isLargeMap ? 32 : 16
+            this._DrawText(4, debugTextRow,
+                (isLargeMap?"L":"M") " ctr=" Round(mapCenterX) "," Round(mapCenterY)
+                " spos=" Round(mapElementScreenX) "," Round(mapElementScreenY)
+                " rawsz=" Round(mapData["sizeW"]) "x" Round(mapData["sizeH"])
+                " sz=" Round(mapScreenWidth) "x" Round(mapScreenHeight)
+                " si=" mapData["scaleIdx"] " dep=" mapData["chainDepth"] " z=" Round(mapZoom, 3),
+                debugColor)
+        }
 
         ; ── Projektionsfaktoren für Radar-Koordinatentransformation ──────────────────────
         baseMapScale := 240.0 / mapZoom
@@ -288,6 +311,9 @@ class RadarOverlay
         statDead      := 0
         statDrawn     := 0
         firstEntityPath := ""
+
+        ; Collect filter stats from awake entities (filter signals 1-5 + blacklist)
+        fs := (awakeEntities && awakeEntities.Has("filterStats")) ? awakeEntities["filterStats"] : 0
 
         for _, entitySource in [awakeEntities, sleepingEntities]
         {
@@ -321,12 +347,13 @@ class RadarOverlay
                     continue
                 }
 
-                ; Path-Filter: nur Monster, Spielercharaktere und NPCs anzeigen
+                ; Path-Filter: nur Monster, Spielercharaktere, NPCs und Chests anzeigen
                 entityPathLower := entity.Has("path") ? StrLower(entity["path"]) : ""
                 isMonster   := InStr(entityPathLower, "metadata/monsters/")
                 isCharacter := InStr(entityPathLower, "metadata/characters/")
-                isNpc       := InStr(entityPathLower, "metadata/npc/")
-                if !(isMonster || isCharacter || isNpc) {
+                isNpcPath   := InStr(entityPathLower, "metadata/npc/")
+                isChestPath := InStr(entityPathLower, "/chests/") || InStr(entityPathLower, "strongbox")
+                if !(isMonster || isCharacter || isNpcPath || isChestPath) {
                     statFiltered += 1
                     continue
                 }
@@ -366,12 +393,64 @@ class RadarOverlay
                     continue
                 }
 
-                ; Dot-Farbe nach Entity-Typ
+                ; Skip already-opened chests — they stay valid in the AwakeMap but are no longer
+                ; relevant and cause persistent "ghost" dots on the radar.
+                if (isChestPath) {
+                    chestComp := decodedComponents.Has("chest") ? decodedComponents["chest"] : 0
+                    if (chestComp && Type(chestComp) = "Map" && chestComp.Has("isOpened") && chestComp["isOpened"]) {
+                        statFiltered += 1
+                        continue
+                    }
+                }
+
+                ; Entity-Typ klassifizieren
                 positionedComponent := decodedComponents.Has("positioned") ? decodedComponents["positioned"] : 0
                 isFriendly := positionedComponent && positionedComponent.Has("isFriendly") && positionedComponent["isFriendly"]
 
-                dotColor := (isNpc || isFriendly) ? RadarOverlay.COLOR_NPC
-                          :                         RadarOverlay.COLOR_ENEMY
+                isChest  := isChestPath
+                isMinion := isMonster && isFriendly
+                isNpc    := isNpcPath || isCharacter || (isFriendly && !isMonster)
+                isEnemy  := !isFriendly && !isChest
+
+                ; Rarity aus Mods/ObjectMagicProperties (0=Normal,1=Magic,2=Rare,3=Unique/Boss)
+                rarityId := decodedComponents.Has("rarityId") ? decodedComponents["rarityId"] : 0
+                isEnemyBoss   := isEnemy && (rarityId = 3)           ; Unique — Bosse
+                isEnemyRare   := isEnemy && (rarityId = 2)           ; Rare
+                isEnemyNormal := isEnemy && !isEnemyBoss && !isEnemyRare
+
+                ; Entity-Gruppen-Filter anwenden
+                if (isChest && !this.ShowChests) {
+                    statFiltered += 1
+                    continue
+                }
+                if (isMinion && !this.ShowMinions) {
+                    statFiltered += 1
+                    continue
+                }
+                if (isNpc && !this.ShowNpcs) {
+                    statFiltered += 1
+                    continue
+                }
+                if (isEnemyNormal && !this.ShowEnemyNormal) {
+                    statFiltered += 1
+                    continue
+                }
+                if (isEnemyRare && !this.ShowEnemyRare) {
+                    statFiltered += 1
+                    continue
+                }
+                if (isEnemyBoss && !this.ShowEnemyBoss) {
+                    statFiltered += 1
+                    continue
+                }
+
+                ; Dot-Farbe nach Entity-Typ
+                dotColor := isChest      ? RadarOverlay.COLOR_CHEST
+                          : isMinion     ? RadarOverlay.COLOR_MINION
+                          : isNpc        ? RadarOverlay.COLOR_NPC
+                          : isEnemyBoss  ? RadarOverlay.COLOR_ENEMY_BOSS
+                          : isEnemyRare  ? RadarOverlay.COLOR_ENEMY_RARE
+                          :                RadarOverlay.COLOR_ENEMY_NORMAL
 
                 dotRadius := isLargeMap ? 4 : 3
                 this._DrawDot(dotScreenX, dotScreenY, dotColor, dotRadius)
@@ -380,14 +459,45 @@ class RadarOverlay
         }
 
         ; Debug-Statuszeile: zeigt wie viele Entities durch welchen Filter gefallen sind
-        debugStatsRow := isLargeMap ? 48 : 56
-        this._DrawText(4, debugStatsRow,
-            (isLargeMap?"L":"M") "-ent: tot=" statTotal " noD=" statNoDecoded " noR=" statNoRender
-            " flt=" statFiltered " dead=" statDead " drawn=" statDrawn " p0=" firstEntityPath,
-            debugColor)
+        if this.DebugMode
+        {
+            debugColor    := isLargeMap ? 0xFFFF00 : 0xFF8800
+            debugStatsRow := isLargeMap ? 48 : 56
+            this._DrawText(4, debugStatsRow,
+                (isLargeMap?"L":"M") "-ent: tot=" statTotal " noD=" statNoDecoded " noR=" statNoRender
+                " flt=" statFiltered " dead=" statDead " drawn=" statDrawn " p0=" firstEntityPath,
+                debugColor)
+            if fs
+            {
+                preFlt  := fs.Has("preFilter")  ? fs["preFilter"]  : "?"
+                postFlt := fs.Has("postFilter") ? fs["postFilter"] : "?"
+                this._DrawText(4, debugStatsRow + 14,
+                    "flt: s1=" fs["s1"] " s2=" fs["s2"] " s3=" fs["s3"] " s4=" fs["s4"]
+                    " s5=" fs["s5"] " s6=" fs["s6"] " bl=" fs["bl"] " blTot=" fs["blTotal"]
+                    " pre=" preFlt " post=" postFlt,
+                    debugColor)
+            }
+        }
     }
 
     ; ── GDI Zeichen-Helfer ───────────────────────────────────────────────────────────────
+
+    ; Returns a cached HPEN for (colorBGR, width). Creates on first use, never deleted until __Delete.
+    _GetPen(colorBGR, width := 1)
+    {
+        key := colorBGR | (width << 24)
+        if !this._penCache.Has(key)
+            this._penCache[key] := DllCall("CreatePen", "Int", 0, "Int", width, "UInt", colorBGR, "Ptr")
+        return this._penCache[key]
+    }
+
+    ; Returns a cached HBRUSH for colorBGR. Creates on first use, never deleted until __Delete.
+    _GetBrush(colorBGR)
+    {
+        if !this._brushCache.Has(colorBGR)
+            this._brushCache[colorBGR] := DllCall("CreateSolidBrush", "UInt", colorBGR, "Ptr")
+        return this._brushCache[colorBGR]
+    }
 
     ; Draws a text string at the given back-buffer coordinates using transparent background mode.
     _DrawText(screenX, screenY, text, colorBGR)
@@ -401,19 +511,18 @@ class RadarOverlay
     ; Draws a straight line on the back-buffer between two screen coordinates.
     _DrawLine(x1, y1, x2, y2, colorBGR, penWidth := 1)
     {
-        pen    := DllCall("CreatePen", "Int", 0, "Int", penWidth, "UInt", colorBGR, "Ptr")
+        pen    := this._GetPen(colorBGR, penWidth)
         oldPen := DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", pen, "Ptr")
         DllCall("MoveToEx", "Ptr", this.memoryDC, "Int", x1, "Int", y1, "Ptr", 0)
         DllCall("LineTo",   "Ptr", this.memoryDC, "Int", x2, "Int", y2)
         DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", oldPen)
-        DllCall("DeleteObject", "Ptr", pen)
     }
 
     ; Draws a filled circle on the back-buffer at (centerX, centerY) with the given radius.
     _DrawDot(centerX, centerY, colorBGR, radius := 3)
     {
-        pen      := DllCall("CreatePen",        "Int", 0, "Int", 1, "UInt", colorBGR, "Ptr")
-        brush    := DllCall("CreateSolidBrush", "UInt", colorBGR, "Ptr")
+        pen      := this._GetPen(colorBGR)
+        brush    := this._GetBrush(colorBGR)
         oldPen   := DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", pen,   "Ptr")
         oldBrush := DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", brush, "Ptr")
         DllCall("Ellipse", "Ptr", this.memoryDC,
@@ -421,22 +530,19 @@ class RadarOverlay
                 "Int", centerX + radius, "Int", centerY + radius)
         DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", oldPen)
         DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", oldBrush)
-        DllCall("DeleteObject", "Ptr", pen)
-        DllCall("DeleteObject", "Ptr", brush)
     }
 
     ; Draws a hollow rectangle outline on the back-buffer; uses NULL_BRUSH to avoid filling the interior.
     _DrawRect(screenX, screenY, width, height, colorBGR, penWidth := 1)
     {
-        pen      := DllCall("CreatePen",      "Int", 0, "Int", penWidth, "UInt", colorBGR, "Ptr")
-        nullBrush := DllCall("GetStockObject", "Int", 5, "Ptr")   ; NULL_BRUSH (kein Fill)
-        oldPen   := DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", pen,       "Ptr")
-        oldBrush := DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", nullBrush, "Ptr")
+        pen       := this._GetPen(colorBGR, penWidth)
+        nullBrush := DllCall("GetStockObject", "Int", 5, "Ptr")   ; NULL_BRUSH
+        oldPen    := DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", pen,       "Ptr")
+        oldBrush  := DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", nullBrush, "Ptr")
         DllCall("Rectangle", "Ptr", this.memoryDC,
                 "Int", screenX, "Int", screenY, "Int", screenX + width, "Int", screenY + height)
         DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", oldPen)
         DllCall("SelectObject", "Ptr", this.memoryDC, "Ptr", oldBrush)
-        DllCall("DeleteObject", "Ptr", pen)
     }
 
     ; ── Interne Buffer-Verwaltung ────────────────────────────────────────────────────────
@@ -480,10 +586,16 @@ class RadarOverlay
         }
     }
 
-    ; Destructor: hides the overlay and releases the GDI back-buffer DC and bitmap.
+    ; Destructor: hides the overlay and releases all GDI objects (cached pens/brushes + back-buffer).
     __Delete()
     {
         this.Hide()
+        for _, pen in this._penCache
+            DllCall("DeleteObject", "Ptr", pen)
+        for _, brush in this._brushCache
+            DllCall("DeleteObject", "Ptr", brush)
+        if this._bgBrush
+            DllCall("DeleteObject", "Ptr", this._bgBrush)
         if this.backBitmap
             DllCall("DeleteObject", "Ptr", this.backBitmap)
         if this.memoryDC

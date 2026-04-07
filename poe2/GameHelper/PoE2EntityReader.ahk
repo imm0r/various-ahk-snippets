@@ -815,6 +815,13 @@ class PoE2EntityReader extends PoE2ComponentDecoders
                             out["targetable"] := decoded
                     }
 
+                    if (!out.Has("life"))
+                    {
+                        decoded := this.DecodeLifeComponentBasic(componentPtr)
+                        if (decoded)
+                            out["life"] := decoded
+                    }
+
                     if (!out.Has("render"))
                     {
                         decoded := this.DecodeRenderComponent(componentPtr)
@@ -987,7 +994,7 @@ class PoE2EntityReader extends PoE2ComponentDecoders
 
         for _, comp in components
         {
-            if (out.Has("render") && out.Has("life") && out.Has("positioned"))
+            if (out.Has("render") && out.Has("life") && out.Has("positioned") && out.Has("rarityId") && out.Has("targetable"))
                 break
             if !(comp && Type(comp) = "Map") || !comp.Has("name") || !comp.Has("address")
                 continue
@@ -1015,6 +1022,37 @@ class PoE2EntityReader extends PoE2ComponentDecoders
                 if decoded
                     out["positioned"] := decoded
             }
+            else if !out.Has("rarityId") && this.ComponentNameMatches(compName, "Mods")
+            {
+                ; Nur den Rarity-Int lesen — kein vollständiger Mods-Decode (zu teuer für 100ms-Tick)
+                rarityId := this.Mem.ReadInt(compAddr + PoE2Offsets.Mods["Rarity"])
+                if (rarityId >= 0 && rarityId <= 5)
+                    out["rarityId"] := rarityId
+            }
+            else if !out.Has("rarityId") && this.ComponentNameMatches(compName, "ObjectMagicProperties")
+            {
+                rarityId := this.Mem.ReadInt(compAddr + PoE2Offsets.ObjectMagicProperties["Rarity"])
+                if (rarityId >= 0 && rarityId <= 5)
+                    out["rarityId"] := rarityId
+            }
+            else if !out.Has("chest") && this.ComponentNameMatches(compName, "Chest")
+            {
+                ; Chest entities have no Life component so the early-break never fires for them.
+                ; Decoding isOpened lets the render loop hide already-opened chests.
+                decoded := this.DecodeChestComponent(compAddr)
+                if decoded
+                    out["chest"] := decoded
+            }
+            else if !out.Has("targetable") && this.ComponentNameMatches(compName, "Targetable")
+            {
+                ; isTargetable goes false when a monster dies — used to detect corpses whose
+                ; HP memory is stale (still reads > 0 despite entity being dead).
+                ; raw=1 → alive; raw=0 → dead; raw>1 → garbage (dead memory), also treated as dead.
+                ; Treating garbage the same as 0 is key: dead entities read 0 or unstable garbage,
+                ; live entities reliably read 1. Discarding garbage made dead-detection impossible.
+                raw := this.Mem.ReadUChar(compAddr + PoE2Offsets.Targetable["IsTargetable"])
+                out["targetable"] := (raw = 1)
+            }
         }
         return out
     }
@@ -1036,6 +1074,54 @@ class PoE2EntityReader extends PoE2ComponentDecoders
                           "sample", [], "sampleCount", 0, "npcCount", 0, "chestCount", 0)
         }
         this._radarMode := false
+        return result
+    }
+
+    ; Fast lightweight BFS scan of all entity raw pointers in a std::map red-black tree.
+    ; Reads only Left, Right, and ValueEntityPtr per node — no component decode, no pointer resolution.
+    ; Use this to build the complete set of entity raw pointers currently in the AwakeMap so that
+    ; _FilterStaleRadarEntities can detect entities that have been fully removed from the map.
+    ; Returns: Map of rawPtr → true (empty on invalid input).
+    ScanEntityMapRawPtrs(stdMapAddress)
+    {
+        result := Map()
+        if !this.IsProbablyValidPointer(stdMapAddress)
+            return result
+
+        head := this.Mem.ReadPtr(stdMapAddress + PoE2Offsets.StdMap["Head"])
+        size := this.Mem.ReadInt(stdMapAddress + PoE2Offsets.StdMap["Size"])
+        if (size < 1 || size > 200000 || !this.IsProbablyValidPointer(head))
+            return result
+
+        root := this.Mem.ReadPtr(head + PoE2Offsets.StdMapNode["Parent"])
+        if !this.IsProbablyValidPointer(root) || root = head
+            return result
+
+        queue    := [root]
+        qi       := 1
+        visited  := Map()
+        maxVisit := Min(size * 2 + 20, 3000)
+
+        while (qi <= queue.Length && visited.Count < maxVisit)
+        {
+            node := queue[qi]
+            qi += 1
+            if !this.IsProbablyValidPointer(node) || node = head || visited.Has(node)
+                continue
+            visited[node] := true
+
+            left   := this.Mem.ReadPtr(node + PoE2Offsets.StdMapNode["Left"])
+            right  := this.Mem.ReadPtr(node + PoE2Offsets.StdMapNode["Right"])
+            rawPtr := this.Mem.ReadPtr(node + PoE2Offsets.StdMapNode["ValueEntityPtr"])
+
+            if this.IsProbablyValidPointer(rawPtr)
+                result[rawPtr] := true
+
+            if (this.IsProbablyValidPointer(left) && left != head)
+                queue.Push(left)
+            if (this.IsProbablyValidPointer(right) && right != head)
+                queue.Push(right)
+        }
         return result
     }
 

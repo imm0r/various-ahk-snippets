@@ -18,7 +18,8 @@ autoFlaskLastReason := "idle"
 autoFlaskPerformanceMode := false
 pinnedNodePaths := []
 lastSnapshotForUi := 0
-g_radarOverlay := 0   ; lazy-init beim ersten Render-Aufruf
+g_radarOverlay  := 0   ; lazy-init beim ersten Render-Aufruf
+g_radarLastSnap := 0   ; last successful radar snapshot — used by Dump Entities button
 g_radarReadMs   := 0  ; Last ReadRadarSnapshot() duration (ms)
 g_radarRenderMs := 0  ; Last RadarOverlay.Render() duration (ms)
 g_profReadLastMs  := 0
@@ -39,6 +40,14 @@ treeTabKeys := ["Overview", "Buffs", "Entities", "UI", "gameState"]
 activeTreeTabKey := "Overview"
 flaskConfigPath := A_MyDocuments "\My Games\Path of Exile 2\poe2_production_Config.ini"
 flaskKeyBySlot := Map(1, "1", 2, "2", 3, "3", 4, "4", 5, "5")
+
+; Radar Entity-Filter
+radarShowEnemyNormal := true
+radarShowEnemyRare   := true
+radarShowEnemyBoss   := true
+radarShowMinions := true
+radarShowNpcs    := true
+radarShowChests  := true
 
 flaskKeyLoadStatus := "default"
 errorLogPath := A_ScriptDir "\InGameStateMonitor.error.log"
@@ -75,14 +84,31 @@ btnClearPinned.OnEvent("Click", OnClearPinsButtonClick)
 
 autoFlaskStatusText := overlayGui.AddText("x10 y66 w980", "AutoFlask: idle")
 hotkeyLegendText := overlayGui.AddText("x10 y86 w980", "")
-treeTabs := overlayGui.AddTab3("x10 y106 w980 h694", treeTabKeys)
+
+radarFilterLabel    := overlayGui.AddText("x10 y110", "Radar:")
+chkRadarEnemyNormal := overlayGui.AddCheckbox("x55  y108 Checked", "Normal")
+chkRadarEnemyRare   := overlayGui.AddCheckbox("x135 y108 Checked", "Rare")
+chkRadarEnemyBoss   := overlayGui.AddCheckbox("x200 y108 Checked", "Boss")
+chkRadarMinions     := overlayGui.AddCheckbox("x265 y108 Checked", "Minions")
+chkRadarNpcs        := overlayGui.AddCheckbox("x345 y108 Checked", "NPCs")
+chkRadarChests      := overlayGui.AddCheckbox("x405 y108 Checked", "Chests")
+chkRadarEnemyNormal.OnEvent("Click", OnRadarFilterChanged)
+chkRadarEnemyRare.OnEvent("Click",   OnRadarFilterChanged)
+chkRadarEnemyBoss.OnEvent("Click",   OnRadarFilterChanged)
+chkRadarMinions.OnEvent("Click",     OnRadarFilterChanged)
+chkRadarNpcs.OnEvent("Click",        OnRadarFilterChanged)
+chkRadarChests.OnEvent("Click",      OnRadarFilterChanged)
+btnDumpEntities := overlayGui.AddButton("x480 y105 w110 h20", "Dump Entities")
+btnDumpEntities.OnEvent("Click", OnDumpEntitiesClicked)
+
+treeTabs := overlayGui.AddTab3("x10 y132 w980 h668", treeTabKeys)
 treeControlsByTab := Map()
 treeNodePathsByTab := Map()
 
 tabTreeX := 20
-tabTreeY := 172
+tabTreeY := 198
 tabTreeW := 960
-tabTreeH := 660
+tabTreeH := 634
 loop treeTabKeys.Length
 {
     idx := A_Index
@@ -130,7 +156,7 @@ if !reader.Connect()
 InitializeErrorLog()
 SetTimer(TryAutoFlaskFast, 150)
 SetTimer(UpdateRadarFast, 100)
-SetTimer(ReadAndShow, 1000)
+SetTimer(ReadAndShow, 2000)
 ReadAndShow()
 return
 
@@ -250,6 +276,7 @@ ApplyOverlayLayout(width, height)
     global thresholdStatusText, autoFlaskStatusText, hotkeyLegendText, treeTabs, treeControlsByTab, offsetPanelTitle, offsetSearchEdit, btnRemovePinned, offsetTable
     global btnDebug, btnPause, btnAutoFlask, btnAutoFlaskPerf, btnPinSelected, btnWatchNearbyNpc, btnTreeToggle, btnTreeRefresh, btnClearPinned, showTreePane
     global statusBar
+    global radarFilterLabel, chkRadarEnemyNormal, chkRadarEnemyRare, chkRadarEnemyBoss, chkRadarMinions, chkRadarNpcs, chkRadarChests
 
     ApplyResponsiveTypography(height)
 
@@ -269,7 +296,8 @@ ApplyOverlayLayout(width, height)
     yActions := yTop + rowH + (compact ? 4 : 6)
     yStatus := yActions + rowH + (compact ? 4 : 6)
     yLegend := yStatus + (compact ? 18 : 20)
-    yTree := yLegend + (compact ? 18 : 22)
+    yRadarFilter := yLegend + (compact ? 18 : 22)
+    yTree := yRadarFilter + (compact ? 22 : 26)
 
     lifeLabel.Move(margin, yTop + 4)
     lifeThresholdEdit.Move(margin + 48, yTop, 52, rowH)
@@ -309,6 +337,16 @@ ApplyOverlayLayout(width, height)
 
     autoFlaskStatusText.Move(margin, yStatus, width - (margin * 2), compact ? 18 : 20)
     hotkeyLegendText.Move(margin, yLegend, width - (margin * 2), compact ? 18 : 20)
+
+    chkW := compact ? 54 : 60
+    radarFilterLabel.Move(margin, yRadarFilter + (compact ? 3 : 4))
+    chkRadarEnemyNormal.Move(margin + 48,               yRadarFilter, chkW, compact ? 18 : 22)
+    chkRadarEnemyRare.Move(  margin + 48 + chkW + 2,    yRadarFilter, chkW, compact ? 18 : 22)
+    chkRadarEnemyBoss.Move(  margin + 48 + chkW*2 + 4,  yRadarFilter, chkW, compact ? 18 : 22)
+    chkRadarMinions.Move(    margin + 48 + chkW*3 + 10,  yRadarFilter, chkW, compact ? 18 : 22)
+    chkRadarNpcs.Move(       margin + 48 + chkW*4 + 12,  yRadarFilter, chkW, compact ? 18 : 22)
+    chkRadarChests.Move(     margin + 48 + chkW*5 + 14,  yRadarFilter, chkW, compact ? 18 : 22)
+    btnDumpEntities.Move(    margin + 48 + chkW*6 + 20,  yRadarFilter, 110, compact ? 18 : 22)
 
     treeH := height - yTree - margin
     if (treeH < 120)
@@ -379,6 +417,7 @@ ApplyResponsiveTypography(height)
     global overlayGui, lifeLabel, lifeThresholdEdit, manaLabel, manaThresholdEdit, applyThresholdBtn
     global thresholdStatusText, autoFlaskStatusText, hotkeyLegendText, treeTabs, treeControlsByTab, offsetPanelTitle, offsetSearchEdit, btnRemovePinned, offsetTable
     global btnDebug, btnPause, btnAutoFlask, btnAutoFlaskPerf, btnPinSelected, btnWatchNearbyNpc, btnTreeToggle, btnTreeRefresh, btnClearPinned
+    global radarFilterLabel, chkRadarEnemyNormal, chkRadarEnemyRare, chkRadarEnemyBoss, chkRadarMinions, chkRadarNpcs, chkRadarChests
 
     static lastMode := ""
     mode := (height < 700) ? "compact" : "normal"
@@ -406,6 +445,14 @@ ApplyResponsiveTypography(height)
         thresholdStatusText.SetFont("s9", "Bahnschrift")
         autoFlaskStatusText.SetFont("s9", "Bahnschrift")
         hotkeyLegendText.SetFont("s9", "Bahnschrift")
+        radarFilterLabel.SetFont("s9", "Bahnschrift")
+        chkRadarEnemyNormal.SetFont("s9", "Bahnschrift")
+        chkRadarEnemyRare.SetFont("s9", "Bahnschrift")
+        chkRadarEnemyBoss.SetFont("s9", "Bahnschrift")
+        chkRadarMinions.SetFont("s9", "Bahnschrift")
+        chkRadarNpcs.SetFont("s9", "Bahnschrift")
+        chkRadarChests.SetFont("s9", "Bahnschrift")
+        btnDumpEntities.SetFont("s9", "Bahnschrift")
         treeTabs.SetFont("s9", "Bahnschrift")
         for _, treeCtrl in treeControlsByTab
             treeCtrl.SetFont("s9", "Bahnschrift")
@@ -435,6 +482,14 @@ ApplyResponsiveTypography(height)
         thresholdStatusText.SetFont("s10", "Bahnschrift")
         autoFlaskStatusText.SetFont("s10", "Bahnschrift")
         hotkeyLegendText.SetFont("s10", "Bahnschrift")
+        radarFilterLabel.SetFont("s10", "Bahnschrift")
+        chkRadarEnemyNormal.SetFont("s10", "Bahnschrift")
+        chkRadarEnemyRare.SetFont("s10", "Bahnschrift")
+        chkRadarEnemyBoss.SetFont("s10", "Bahnschrift")
+        chkRadarMinions.SetFont("s10", "Bahnschrift")
+        chkRadarNpcs.SetFont("s10", "Bahnschrift")
+        chkRadarChests.SetFont("s10", "Bahnschrift")
+        btnDumpEntities.SetFont("s10", "Bahnschrift")
         treeTabs.SetFont("s10", "Bahnschrift")
         for _, treeCtrl in treeControlsByTab
             treeCtrl.SetFont("s10", "Bahnschrift")
@@ -463,102 +518,102 @@ ReadAndShow(forceTreeRefresh := false)
     readAndShowRunning := true
     totalStart := A_TickCount
     try
-    {
-    global reader, valueTree, nodePaths, debugMode, updatesPaused, autoFlaskEnabled, flaskKeyLoadStatus, flaskKeyBySlot, showTreePane
-    global lifeThresholdPercent, manaThresholdPercent, autoFlaskLastReason, autoFlaskStatusText, hotkeyLegendText, autoFlaskPerformanceMode, lastSnapshotForUi
-    global treeRefreshRequested, g_profReadLastMs, g_profReadAvgMs, g_profTreeLastMs, g_profTotalLastMs
-
-    if (updatesPaused && !forceTreeRefresh)
-        return
-
-    SetActiveTreeContextFromTab()
-
-    readStart := A_TickCount
-    snapshot := autoFlaskPerformanceMode ? reader.ReadAutoFlaskSnapshot() : reader.ReadSnapshot()
-    _readLastMs := A_TickCount - readStart
-    _readCycles += 1
-    _readTotalMs += _readLastMs
-    readAvgMs := (_readCycles > 0) ? Round(_readTotalMs / _readCycles, 1) : 0
-    entityModeText := "-"
-    try entityModeText := reader.LastEntityReadMode
-    entityOffsetText := "-"
-    try entityOffsetText := PoE2GameStateReader.Hex(reader.LastEntityReadOffset)
-    entityFallbackAgeText := "-"
-    try
-    {
-        lastFbTick := reader.LastEntityFallbackTick
-        if (lastFbTick > 0)
-            entityFallbackAgeText := Round((A_TickCount - lastFbTick) / 1000.0, 1) "s"
-    }
-
-    if !snapshot
-    {
-        valueTree.Delete()
-        nodePaths := Map()
-        StoreNodePathMapForActiveTab(nodePaths)
-        valueTree.Add("Lesefehler: Snapshot leer")
-        return
-    }
-
-    TryAutoFlask(snapshot)
-    lastSnapshotForUi := snapshot
-
-    try
-    {
-        UpdateActionButtonLabels()
-
-        if autoFlaskStatusText
         {
-            slot1Key := flaskKeyBySlot.Has(1) ? flaskKeyBySlot[1] : "?"
-            slot2Key := flaskKeyBySlot.Has(2) ? flaskKeyBySlot[2] : "?"
-            perfText := autoFlaskPerformanceMode ? "ON" : "OFF"
-            autoFlaskStatusText.Value := "AutoFlask Action: " autoFlaskLastReason " | LifeKey(Slot1): " slot1Key " | ManaKey(Slot2): " slot2Key " | Perf: " perfText
+        global reader, valueTree, nodePaths, debugMode, updatesPaused, autoFlaskEnabled, flaskKeyLoadStatus, flaskKeyBySlot, showTreePane
+        global lifeThresholdPercent, manaThresholdPercent, autoFlaskLastReason, autoFlaskStatusText, hotkeyLegendText, autoFlaskPerformanceMode, lastSnapshotForUi
+        global treeRefreshRequested, g_profReadLastMs, g_profReadAvgMs, g_profTreeLastMs, g_profTotalLastMs
+
+        if (updatesPaused && !forceTreeRefresh)
+            return
+
+        SetActiveTreeContextFromTab()
+
+        readStart := A_TickCount
+        snapshot := autoFlaskPerformanceMode ? reader.ReadAutoFlaskSnapshot() : reader.ReadSnapshot()
+        _readLastMs := A_TickCount - readStart
+        _readCycles += 1
+        _readTotalMs += _readLastMs
+        readAvgMs := (_readCycles > 0) ? Round(_readTotalMs / _readCycles, 1) : 0
+        entityModeText := "-"
+        try entityModeText := reader.LastEntityReadMode
+        entityOffsetText := "-"
+        try entityOffsetText := PoE2GameStateReader.Hex(reader.LastEntityReadOffset)
+        entityFallbackAgeText := "-"
+        try
+        {
+            lastFbTick := reader.LastEntityFallbackTick
+            if (lastFbTick > 0)
+                entityFallbackAgeText := Round((A_TickCount - lastFbTick) / 1000.0, 1) "s"
         }
 
-        if hotkeyLegendText
+        if !snapshot
         {
-            hotkeyLegendText.Value := BuildHotkeyLegendText()
+            valueTree.Delete()
+            nodePaths := Map()
+            StoreNodePathMapForActiveTab(nodePaths)
+            valueTree.Add("Lesefehler: Snapshot leer")
+            return
         }
-    }
-    catch
-    {
-    }
 
-    nowTick := A_TickCount
-    doTreeRefresh := showTreePane && (treeRefreshRequested || forceTreeRefresh)
+        TryAutoFlask(snapshot)
+        lastSnapshotForUi := snapshot
 
-    expandedPaths := Map()
-    treeFocus := 0
-    if doTreeRefresh
-    {
-        expandedPaths := CaptureExpandedPaths()
-        treeFocus := CaptureTreeFocusState()
-    }
+        try
+        {
+            UpdateActionButtonLabels()
 
-    snapshotModeText := (snapshot.Has("snapshotMode") && snapshot["snapshotMode"] != "")
-        ? snapshot["snapshotMode"]
-        : "full"
+            if autoFlaskStatusText
+            {
+                slot1Key := flaskKeyBySlot.Has(1) ? flaskKeyBySlot[1] : "?"
+                slot2Key := flaskKeyBySlot.Has(2) ? flaskKeyBySlot[2] : "?"
+                perfText := autoFlaskPerformanceMode ? "ON" : "OFF"
+                autoFlaskStatusText.Value := "AutoFlask Action: " autoFlaskLastReason " | LifeKey(Slot1): " slot1Key " | ManaKey(Slot2): " slot2Key " | Perf: " perfText
+            }
 
-    if doTreeRefresh
-    {
-        treeStart := A_TickCount
-        valueTree.Opt("-Redraw")
-        valueTree.Delete()
-        nodePaths := Map()
-        StoreNodePathMapForActiveTab(nodePaths)
+            if hotkeyLegendText
+            {
+                hotkeyLegendText.Value := BuildHotkeyLegendText()
+            }
+        }
+        catch
+        {
+        }
 
-        RenderActiveTreeTab(snapshot, snapshotModeText, readAvgMs, _readLastMs, _treeLastMs, _totalLastMs, entityModeText, entityOffsetText, entityFallbackAgeText, expandedPaths)
-        RestoreTreeFocusState(treeFocus)
-        valueTree.Opt("+Redraw")
-        _treeLastMs := A_TickCount - treeStart
-        treeRefreshRequested := false
-    }
-    _totalLastMs := A_TickCount - totalStart
-    g_profReadLastMs  := _readLastMs
-    g_profReadAvgMs   := readAvgMs
-    g_profTreeLastMs  := _treeLastMs
-    g_profTotalLastMs := _totalLastMs
-    UpdateOffsetTable(snapshot)
+        nowTick := A_TickCount
+        doTreeRefresh := showTreePane && (treeRefreshRequested || forceTreeRefresh)
+
+        expandedPaths := Map()
+        treeFocus := 0
+        if doTreeRefresh
+        {
+            expandedPaths := CaptureExpandedPaths()
+            treeFocus := CaptureTreeFocusState()
+        }
+
+        snapshotModeText := (snapshot.Has("snapshotMode") && snapshot["snapshotMode"] != "")
+            ? snapshot["snapshotMode"]
+            : "full"
+
+        if doTreeRefresh
+        {
+            treeStart := A_TickCount
+            valueTree.Opt("-Redraw")
+            valueTree.Delete()
+            nodePaths := Map()
+            StoreNodePathMapForActiveTab(nodePaths)
+
+            RenderActiveTreeTab(snapshot, snapshotModeText, readAvgMs, _readLastMs, _treeLastMs, _totalLastMs, entityModeText, entityOffsetText, entityFallbackAgeText, expandedPaths)
+            RestoreTreeFocusState(treeFocus)
+            valueTree.Opt("+Redraw")
+            _treeLastMs := A_TickCount - treeStart
+            treeRefreshRequested := false
+        }
+        _totalLastMs := A_TickCount - totalStart
+        g_profReadLastMs  := _readLastMs
+        g_profReadAvgMs   := readAvgMs
+        g_profTreeLastMs  := _treeLastMs
+        g_profTotalLastMs := _totalLastMs
+        UpdateOffsetTable(snapshot)
     }
     catch as ex
     {
@@ -738,3 +793,6 @@ OnTreeTabChanged(*)
 
 #Include AutoFlask.ahk
 #Include UIHelpers.ahk
+
+; F3: one-shot debug dump — TreeView content, game window screenshot, radar entity TSV.
+F3::OnF3DebugDump()
