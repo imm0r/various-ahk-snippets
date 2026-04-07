@@ -1,4 +1,4 @@
-#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 #Include ProcessMemory.ahk
 #Include StaticOffsetsPatterns.ahk
 #Include PoE2ComponentDecoders.ahk
@@ -52,21 +52,42 @@ class PoE2GameStateReader extends PoE2InventoryReader
         this._radarMode := false
 
         ; Radar-specific limits — smaller than full snapshot for faster 100ms updates.
+        ; Awake entities are capped at 70 to widen nearby coverage compared to the normal sample
+        ; limit, while still keeping radar polls cheap enough for the 100ms update cadence.
         ; Sleeping entities are outside the active simulation range and carry stale world positions,
         ; so they are intentionally excluded from radar reads to prevent ghost dots.
-        this.RadarAwakeEntityLimit := 20
+        this.RadarAwakeEntityLimit := 40
         this.RadarSleepingEntityLimit := 0
 
         ; Stale-entity cleanup (port of upstream commit 75d48872).
         ; Tracks entities seen as dead/invalid for consecutive ticks.
-        ; At 100ms/tick and threshold=3, an entity is blacklisted after ~300ms of being dead.
-        this.StaleEntityFrameThreshold := 3
-        ; addr → consecutive dead-frame count (isValid=false OR isAlive=false)
-        this._staleEntityMap := Map()
         ; addr → true: permanently filtered for current area, never rendered again
         this._deadEntityBlacklist := Map()
         ; last seen areaInstance address — blacklist is reset on area change
         this._lastAreaInstanceAddr := 0
+        ; addr → true: entities that have been confirmed alive (HP > 0) at least once this area.
+        this._everAliveAddrs := Map()
+        ; addr → consecutive ticks where IsTargetable=0 after entity was seen as targetable=1.
+        ; Dead monsters hold IsTargetable=0 (or garbage, treated as 0) indefinitely.
+        ; At 100ms/tick and TargetableDeadThreshold=10, a non-boss entity is blacklisted after 1 second.
+        this._targetableDeadMap := Map()
+        this.TargetableDeadThreshold := 10
+        ; addr → true: entities seen with IsTargetable=true at least once.
+        this._targetableEverOn := Map()
+        ; addr → A_TickCount when entity was first seen in the radar sample.
+        ; Used by Signal 4: monsters never confirmed alive after 5 s are ghost entities.
+        this._firstSeenTick := Map()
+        ; addr → "X,Y" string (world position rounded to 1 dp) at last tick it was in sample.
+        ; Used by Signal 6: monsters whose position is frozen for PosDeadThresholdMs are dead.
+        this._posLastXY := Map()
+        ; addr → A_TickCount when we first observed the entity's position being frozen (no change).
+        this._posFrozenSinceTick := Map()
+        ; Milliseconds a monster must stay at the exact same position before being treated as dead.
+        ; Dead corpses are perfectly static; live monsters move or shift slightly.
+        ; Since Signal 2 (HP=0) and Signal 5 (Targetable flip) now work correctly,
+        ; Signal 6 is only a fallback. Use a generous threshold to avoid false positives
+        ; for idle/ranged monsters that stand still in combat.
+        this.PosDeadThresholdMs := 15000
 
         ; Cached UI element data for radar (re-read every 400ms instead of every 100ms).
         this._radarUiCache := 0
@@ -1373,43 +1394,54 @@ class PoE2GameStateReader extends PoE2InventoryReader
         )
     }
 
-    ; Filters ghost entities from a radar entity summary using consecutive-invalid-frame tracking.
-    ; Port of upstream commit 75d48872: entities invalid for StaleEntityFrameThreshold consecutive
-    ; radar ticks are dropped from the sample entirely to prevent ghost dots in the renderer.
-    ; - Valid entities reset their stale counter.
-    ; - Addresses no longer present in the sample are pruned from the stale map.
-    ; Mutates entitySummary["sample"] and ["sampleCount"] in place; returns the filtered summary.
-    ; Filters ghost/dead entities from a radar entity summary using consecutive-dead-frame tracking.
-    ; Port of upstream commit 75d48872, extended to also track isAlive=false (not just isValid=false).
+    ; Filters ghost/dead entities from a radar entity summary.
+    ; Dead signals (in order of reliability):
+    ;   1. isValid=false — game engine invalidated the entity
+    ;   2. isAlive=false — HP reached 0 (hard dead, immediate blacklist)
+    ;   3. !lifeDecoded && targetableOff — both memory signals gone (corpse, immediate blacklist)
+    ;   4. Targetable component present and reads 0, never read 1, for ≥3 s since first seen —
+    ;      catches ghost entities that were already dead when we first observed them.
+    ;   5. Targetable=0 for TargetableDeadThreshold consecutive ticks after being seen targetable=1
+    ;      — catches monsters killed while being tracked whose HP memory stays stale.
     ;
-    ; An entity is considered "dead" if:
-    ;   - isValid=false (game engine removed it), OR
-    ;   - life component decoded successfully AND isAlive=false (HP reached 0)
-    ;
-    ; Entities dead for StaleEntityFrameThreshold consecutive ticks are added to _deadEntityBlacklist.
-    ; Blacklisted entities are immediately dropped regardless of current state — this handles the case
-    ; where dead monsters remain in the awake entity map with isValid=true indefinitely.
-    ;
-    ; areaInstanceAddr is used to detect area transitions and reset both maps.
-    _FilterStaleRadarEntities(entitySummary, areaInstanceAddr)
+    ; areaInstanceAddr is used to detect area transitions and reset all tracking maps.
+    ; fullAwakeRawPtrs (optional): Map from ScanEntityMapRawPtrs() — entities removed from the
+    ;   AwakeMap entirely are blacklisted immediately (network-bubble eviction signal).
+    _FilterStaleRadarEntities(entitySummary, areaInstanceAddr, fullAwakeRawPtrs := 0)
     {
         if !(entitySummary && entitySummary.Has("sample"))
             return entitySummary
 
-        ; Reset both maps on area change (new map = fresh entity set).
-        if (areaInstanceAddr != this._lastAreaInstanceAddr)
+        ; Robust zone-change detection: use CurrentAreaHash instead of raw pointer.
+        ; The raw AreaInstance pointer may not change between zones if the game reuses
+        ; the same struct; the hash reliably changes on every area transition.
+        areaHashKey := areaInstanceAddr
+        if this.IsProbablyValidPointer(areaInstanceAddr)
         {
-            this._staleEntityMap      := Map()
-            this._deadEntityBlacklist := Map()
-            this._lastAreaInstanceAddr := areaInstanceAddr
+            areaHash := this.Mem.ReadUInt(areaInstanceAddr + PoE2Offsets.AreaInstance["CurrentAreaHash"])
+            if (areaHash != 0)
+                areaHashKey := areaHash
         }
 
-        threshold   := this.StaleEntityFrameThreshold
-        staleMap    := this._staleEntityMap
-        blacklist   := this._deadEntityBlacklist
-        sample      := entitySummary["sample"]
-        newSample   := []
-        seenAddrs   := Map()
+        ; Reset all maps on area change (new map = fresh entity set).
+        if (areaHashKey != this._lastAreaInstanceAddr)
+        {
+            this._deadEntityBlacklist := Map()
+            this._everAliveAddrs      := Map()
+            this._targetableDeadMap   := Map()
+            this._targetableEverOn    := Map()
+            this._firstSeenTick       := Map()
+            this._posLastXY           := Map()
+            this._posFrozenSinceTick  := Map()
+            this._lastAreaInstanceAddr := areaHashKey
+        }
+
+        blacklist := this._deadEntityBlacklist
+        sample    := entitySummary["sample"]
+        newSample := []
+        nowTick   := A_TickCount
+        ; Filter signal counters for debug output
+        dbgS1 := 0, dbgS2 := 0, dbgS3 := 0, dbgS4 := 0, dbgS5 := 0, dbgS6 := 0, dbgBL := 0
 
         for _, sampleEntry in sample
         {
@@ -1420,72 +1452,186 @@ class PoE2GameStateReader extends PoE2InventoryReader
                 continue
             }
 
-            addr := entity.Has("address") ? entity["address"] : 0
+            addr   := entity.Has("address") ? entity["address"] : 0
+            rawPtr := (sampleEntry && sampleEntry.Has("entityRawPtr")) ? sampleEntry["entityRawPtr"] : 0
 
             ; Permanently blacklisted from a previous tick — drop immediately.
-            if (addr > 0 && blacklist.Has(addr))
+            if (addr > 0 && blacklist.Has(addr)) {
+                dbgBL += 1
                 continue
-
-            if (addr > 0)
-                seenAddrs[addr] := true
-
-            ; Determine dead status: isValid=false OR (life decoded && isAlive=false).
-            isDead := false
-            if (entity.Has("isValid") && !entity["isValid"])
-                isDead := true
-            if (!isDead && entity.Has("decodedComponents"))
-            {
-                dc := entity["decodedComponents"]
-                if (dc && dc.Has("life"))
-                {
-                    life := dc["life"]
-                    if (life && Type(life) = "Map" && life.Has("isAlive") && !life["isAlive"])
-                        isDead := true
-                }
             }
 
+            ; Record when we first encounter this entity address.
+            if (addr > 0 && !this._firstSeenTick.Has(addr))
+                this._firstSeenTick[addr] := nowTick
+
+            isMonster := entity.Has("path") && InStr(StrLower(entity["path"]), "metadata/monsters/")
+            ; rarityId=3 = Unique/Boss: exempt from the targetable-dead timer because bosses have
+            ; legitimate multi-second untargetable phases (phase transitions, invulnerability windows).
+            rarityId  := (entity.Has("decodedComponents") && entity["decodedComponents"].Has("rarityId"))
+                         ? entity["decodedComponents"]["rarityId"] : 0
+            isBoss    := (rarityId = 3)
+
+            dc          := entity.Has("decodedComponents") ? entity["decodedComponents"] : 0
+            lifeDecoded := (dc && dc.Has("life") && dc["life"] && Type(dc["life"]) = "Map")
+
+            ; Normalize targetable to a tri-state boolean:
+            ;   true  = component present and reads "targetable"
+            ;   false = component present and reads "not targetable" (dead/ghost signal)
+            ;   ""    = component not found / unknown (no signal either way)
+            ;
+            ; The lookup path (DecodeSampleEntityComponentsRadar) stores a raw boolean.
+            ; The vector-scan fallback (DecodeEntityComponentsFromVectorBasic) stores a full Map
+            ; from DecodeTargetableComponent.  Both must be handled here.
+            tgtRaw := dc ? (dc.Has("targetable") ? dc["targetable"] : "") : ""
+            if (Type(tgtRaw) = "Map")
+                tgtBool := tgtRaw.Has("isTargetable") ? (tgtRaw["isTargetable"] ? true : false) : ""
+            else
+                tgtBool := tgtRaw
+            targetableOff := (tgtBool = false)
+            tgtFound      := (tgtBool = true || tgtBool = false)
+
+            isDead   := false
+            hardDead := false
+            dbgSig   := 0
+
+            ; ── Dead-signal evaluation ──────────────────────────────────────────────────
+            ; Signal 1: game engine cleared the isValid flag
+            if (entity.Has("isValid") && !entity["isValid"]) {
+                isDead := hardDead := true
+                dbgSig := 1
+            }
+
+            ; Signal 2: HP explicitly 0 (life component successfully decoded)
+            if (!isDead && lifeDecoded && dc["life"].Has("isAlive") && !dc["life"]["isAlive"]) {
+                isDead := hardDead := true
+                dbgSig := 2
+            }
+
+            ; Signal 3: both life and targetable memory are gone — fully degraded corpse.
+            ; Guard: only fire if entity was previously confirmed alive, to prevent false positives
+            ; when Life/Targetable offsets fail to decode for live monsters (both read as 0).
+            if (!isDead && isMonster && !lifeDecoded && targetableOff && this._everAliveAddrs.Has(addr)) {
+                isDead := hardDead := true
+                dbgSig := 3
+            }
+
+            ; (Signal 4 removed: "targetable=0 for Ns since first seen" was causing false positives
+            ; because monsters rotate in/out of the 20-entity sample, so firstSeenTick can be >3s
+            ; even when the entity was only sampled once. This blacklisted all live monsters.
+            ; Signal 3 covers pre-dead ghosts when both life+targetable are degraded.
+            ; Signal 5 covers monsters killed while being actively tracked.)
+
+            ; ── Alive path ──────────────────────────────────────────────────────────────
             if !isDead
             {
-                ; Entity is live — clear any accumulated stale count and keep it.
-                if (addr > 0 && staleMap.Has(addr))
-                    staleMap.Delete(addr)
-                newSample.Push(sampleEntry)
-            }
-            else
-            {
-                ; Entity is dead — increment counter; blacklist once threshold is reached.
-                count := (addr > 0 && staleMap.Has(addr)) ? staleMap[addr] : 0
-                count += 1
-                if (addr > 0)
-                    staleMap[addr] := count
-
-                if (count >= threshold)
+                ; Confirm alive when life component explicitly reports HP > 0.
+                if (lifeDecoded && dc["life"].Has("isAlive") && dc["life"]["isAlive"])
                 {
-                    ; Threshold reached — permanently blacklist this address for the current area.
                     if (addr > 0)
-                    {
-                        blacklist[addr] := true
-                        if staleMap.Has(addr)
-                            staleMap.Delete(addr)
-                    }
-                    ; Drop: do not push to newSample.
+                        this._everAliveAddrs[addr] := true
                 }
-                else
-                    newSample.Push(sampleEntry)   ; grace period: keep for a few ticks
+                ; Signal 5: targetable-dead timer— dead monsters hold IsTargetable=0/garbage
+                ; indefinitely even when HP memory reads stale-positive.  Boss entities are exempt.
+                shouldAdd := true
+                if (isMonster && !isBoss && addr > 0)
+                {
+                    if (tgtBool = true)
+                    {
+                        this._targetableEverOn[addr] := true
+                        if this._targetableDeadMap.Has(addr)
+                            this._targetableDeadMap.Delete(addr)
+                    }
+                    else if (tgtBool = false && this._targetableEverOn.Has(addr))
+                    {
+                        tCount := this._targetableDeadMap.Has(addr) ? this._targetableDeadMap[addr] : 0
+                        tCount += 1
+                        this._targetableDeadMap[addr] := tCount
+                        if (tCount >= this.TargetableDeadThreshold)
+                        {
+                            blacklist[addr] := true
+                            if this._everAliveAddrs.Has(addr)
+                                this._everAliveAddrs.Delete(addr)
+                            if this._targetableDeadMap.Has(addr)
+                                this._targetableDeadMap.Delete(addr)
+                            if this._targetableEverOn.Has(addr)
+                                this._targetableEverOn.Delete(addr)
+                            dbgS5 += 1
+                            shouldAdd := false
+                        }
+                    }
+                }
+                ; Signal 6: position-freeze — dead corpses have a perfectly static render position.
+                ; Any entity (monster, non-boss) frozen at the exact same world position for
+                ; PosDeadThresholdMs is treated as dead. Live entities that move reset the timer.
+                if (shouldAdd && isMonster && !isBoss && addr > 0)
+                {
+                    render := (dc && dc.Has("render") && dc["render"] && Type(dc["render"]) = "Map") ? dc["render"] : 0
+                    wp     := (render && render.Has("worldPosition")) ? render["worldPosition"] : 0
+                    if (wp && wp.Has("x") && wp.Has("y"))
+                    {
+                        posKey := Round(wp["x"], 1) . "," . Round(wp["y"], 1)
+                        if (this._posLastXY.Has(addr) && this._posLastXY[addr] = posKey)
+                        {
+                            if !this._posFrozenSinceTick.Has(addr)
+                                this._posFrozenSinceTick[addr] := nowTick
+                            frozenMs := nowTick - this._posFrozenSinceTick[addr]
+                            if (frozenMs > this.PosDeadThresholdMs)
+                            {
+                                shouldAdd := false
+                                dbgS6 += 1
+                            }
+                        }
+                        else
+                        {
+                            ; Position changed — entity is alive; reset freeze timer.
+                            this._posLastXY[addr] := posKey
+                            this._posFrozenSinceTick.Delete(addr)
+                        }
+                    }
+                }
+                if shouldAdd
+                    newSample.Push(sampleEntry)
             }
+            else if hardDead
+            {
+                ; Hard dead: blacklist immediately, clean up all tracking state.
+                if (dbgSig = 1)
+                    dbgS1 += 1
+                else if (dbgSig = 2)
+                    dbgS2 += 1
+                else if (dbgSig = 3)
+                    dbgS3 += 1
+
+                if (addr > 0)
+                {
+                    blacklist[addr] := true
+                    if this._everAliveAddrs.Has(addr)
+                        this._everAliveAddrs.Delete(addr)
+                    if this._targetableDeadMap.Has(addr)
+                        this._targetableDeadMap.Delete(addr)
+                    if this._targetableEverOn.Has(addr)
+                        this._targetableEverOn.Delete(addr)
+                    if this._firstSeenTick.Has(addr)
+                        this._firstSeenTick.Delete(addr)
+                    if this._posLastXY.Has(addr)
+                        this._posLastXY.Delete(addr)
+                    if this._posFrozenSinceTick.Has(addr)
+                        this._posFrozenSinceTick.Delete(addr)
+                }
+                ; Drop: do not push to newSample.
+            }
+            ; (No soft-dead path: eliminated to prevent false positives on live monsters
+            ;  whose life component transiently fails to decode.)
         }
 
-        ; Prune stale map entries for addresses that disappeared from the BFS entirely.
-        pruneKeys := []
-        for addr, _ in staleMap
-            if !seenAddrs.Has(addr)
-                pruneKeys.Push(addr)
-        for _, addr in pruneKeys
-            if staleMap.Has(addr)
-                staleMap.Delete(addr)
-
-        entitySummary["sample"]      := newSample
-        entitySummary["sampleCount"] := newSample.Length
+        entitySummary["sample"]        := newSample
+        entitySummary["sampleCount"]   := newSample.Length
+        entitySummary["filterStats"]   := Map(
+            "s1", dbgS1, "s2", dbgS2, "s3", dbgS3, "s4", dbgS4, "s5", dbgS5, "s6", dbgS6,
+            "bl", dbgBL, "blTotal", blacklist.Count,
+            "preFilter", sample.Length, "postFilter", newSample.Length
+        )
         return entitySummary
     }
 
@@ -1579,6 +1725,17 @@ class PoE2GameStateReader extends PoE2InventoryReader
         sleepingLimit      := this.RadarSleepingEntityLimit
         playerOrigin       := this.ExtractWorldPositionFromRenderComponent(playerRenderComponent)
 
+        ; Full lightweight scan of all entity raw pointers in the AwakeMap — used by
+        ; _FilterStaleRadarEntities to detect entities removed from the map (network-bubble check).
+        ; Cost: ~3 reads per tree node (left, right, valuePtr), ~2-4ms for a 650-entry map.
+        try
+        {
+            fullAwakeRawPtrs := this.ScanEntityMapRawPtrs(awakeMapAddress)
+        }
+        catch
+        {
+            fullAwakeRawPtrs := 0
+        }
         emptyEntitySummary := Map("address", 0, "size", 0, "sample", [], "sampleCount", 0)
         try
         {
@@ -1605,9 +1762,11 @@ class PoE2GameStateReader extends PoE2InventoryReader
         }
         t5 := A_TickCount  ; after sleeping entity read
 
-        ; Apply stale-entity filter (port of upstream commit 75d48872):
-        ; entities dead for StaleEntityFrameThreshold consecutive ticks are permanently blacklisted.
-        awakeEntities    := this._FilterStaleRadarEntities(awakeEntities,    areaInstanceData)
+        ; Apply entity filter (ghost detection + dead-entity blacklisting).
+        ; See _FilterStaleRadarEntities for the 5 dead signals used.
+        ; fullAwakeRawPtrs enables the network-bubble check: entities removed from the AwakeMap
+        ; are blacklisted on the very next tick regardless of what their HP memory reads.
+        awakeEntities    := this._FilterStaleRadarEntities(awakeEntities,    areaInstanceData, fullAwakeRawPtrs)
         sleepingEntities := this._FilterStaleRadarEntities(sleepingEntities, areaInstanceData)
         t6 := A_TickCount  ; after filter
 
@@ -1634,6 +1793,179 @@ class PoE2GameStateReader extends PoE2InventoryReader
                 )
             )
         )
+    }
+
+    ; Dumps diagnostic data for all entities in the last radar snapshot to a TSV file.
+    ; Rows include: address, rawPtr, path, rarityId, isValid, lifeDecoded, HPcur, HPmax,
+    ;   isAlive, targetableRaw (byte read directly), targetableDecoded, reaction,
+    ;   inBlacklist, staleCount, targetableDeadCount, inFullAwakeScan.
+    DumpRadarEntityDebug(radarSnap, outDir := "")
+    {
+        if !outDir
+        {
+            outDir := A_ScriptDir "\debug"
+            if !DirExist(outDir)
+                DirCreate(outDir)
+        }
+        timestamp := FormatTime(A_Now, "yyyyMMdd_HHmmss")
+        outPath   := outDir "\radar_entity_debug_" timestamp ".tsv"
+
+        inGs  := (radarSnap && radarSnap.Has("inGameState")) ? radarSnap["inGameState"] : 0
+        area  := (inGs && inGs.Has("areaInstance")) ? inGs["areaInstance"] : 0
+        if !area
+            return ""
+
+        areaAddr := area.Has("address") ? area["address"] : 0
+
+        ; Re-scan the full AwakeMap for rawPtr presence check
+        fullRawPtrs := Map()
+        try
+        {
+            entityListOffset := PoE2Offsets.AreaInstance["AwakeEntities"]
+            mapBase := this.Mem.ReadPtr(areaAddr + entityListOffset)
+            fullRawPtrs := this.ScanEntityMapRawPtrs(mapBase)
+        }
+
+        blacklist  := this._deadEntityBlacklist
+        firstSeen  := this._firstSeenTick
+        tgtDeadMap := this._targetableDeadMap
+        tgtEverOn  := this._targetableEverOn
+
+        awake    := area.Has("awakeEntities")    ? area["awakeEntities"]    : Map()
+        sleeping := area.Has("sleepingEntities") ? area["sleepingEntities"] : Map()
+
+        ; Build a diagnostic stats line: StdMap size, BFS pre/post filter counts, signal breakdown.
+        awakeFs  := (awake.Has("filterStats") && Type(awake["filterStats"]) = "Map")  ? awake["filterStats"]  : 0
+        sleepFs  := (sleeping.Has("filterStats") && Type(sleeping["filterStats"]) = "Map") ? sleeping["filterStats"] : 0
+        awakeSize := awake.Has("size") ? awake["size"] : "?"
+        statsLine := "; STATS awake: mapSize=" awakeSize
+                   . " preFilter=" (awakeFs ? awakeFs["preFilter"] : "?")
+                   . " postFilter=" (awakeFs ? awakeFs["postFilter"] : "?")
+                   . " s1(invalid)=" (awakeFs ? awakeFs["s1"] : "?")
+                   . " s2(hp=0)=" (awakeFs ? awakeFs["s2"] : "?")
+                   . " s3(lifeTgtGone)=" (awakeFs ? awakeFs["s3"] : "?")
+                   . " s5(tgtFlip)=" (awakeFs ? awakeFs["s5"] : "?")
+                   . " s6(frozen)=" (awakeFs ? awakeFs["s6"] : "?")
+                   . " bl(blacklisted)=" (awakeFs ? awakeFs["bl"] : "?")
+                   . " blTotal=" (awakeFs ? awakeFs["blTotal"] : "?")
+                   . "`n"
+
+        header := "Timestamp`tAddress`tRawPtr`tPath`tRarityId`tIsValid`tLifeDecoded`tHPcur`tHPmax`tIsAlive`tTargetableRaw`tTargetableDecoded`tReaction`tInBlacklist`tFirstSeenMs`tTgtDeadCount`tInFullAwakeScan`tEverAlive`tTgtEverOn`tRenderDecoded`tWorldX`tWorldY`tFrozenMs`n"
+        rows   := ""
+        now    := FormatTime(A_Now, "HH:mm:ss")
+
+        awakeSample    := (awake.Has("sample"))    ? awake["sample"]    : []
+        sleepingSample := (sleeping.Has("sample")) ? sleeping["sample"] : []
+
+        processSample(sampleList, sourceLabel)
+        {
+            for _, sampleEntry in sampleList
+            {
+                entity := (sampleEntry && sampleEntry.Has("entity")) ? sampleEntry["entity"] : 0
+                if !entity
+                    continue
+
+                addr   := entity.Has("address")    ? entity["address"]    : 0
+                rawPtr := sampleEntry.Has("entityRawPtr") ? sampleEntry["entityRawPtr"] : 0
+                path   := entity.Has("path")        ? entity["path"]       : ""
+                isValid := entity.Has("isValid")   ? (entity["isValid"] ? 1 : 0) : "?"
+
+                dc := entity.Has("decodedComponents") ? entity["decodedComponents"] : 0
+
+                lifeDecoded := 0
+                HPcur := ""
+                HPmax := ""
+                isAlive := ""
+                if (dc && dc.Has("life") && dc["life"] && Type(dc["life"]) = "Map")
+                {
+                    lifeDecoded := 1
+                    lf := dc["life"]
+                    lStruct := (lf.Has("life") && Type(lf["life"]) = "Map") ? lf["life"] : 0
+                    if lStruct
+                    {
+                        HPcur := lStruct.Has("current") ? lStruct["current"] : ""
+                        HPmax := lStruct.Has("max")     ? lStruct["max"]     : ""
+                    }
+                    isAlive := lf.Has("isAlive") ? (lf["isAlive"] ? 1 : 0) : ""
+                }
+
+                ; Read IsTargetable byte directly from memory — ground truth
+                targetableRaw := ""
+                targetableDecoded := ""
+                if (dc && dc.Has("targetable"))
+                {
+                    tgtV := dc["targetable"]
+                    if (Type(tgtV) = "Map")
+                        targetableDecoded := (tgtV.Has("isTargetable") && tgtV["isTargetable"]) ? 1 : 0
+                    else
+                        targetableDecoded := tgtV ? 1 : 0
+                }
+                ; Try to read raw byte from the entity's component list
+                comps := entity.Has("components") ? entity["components"] : 0
+                if (comps && Type(comps) = "Array")
+                {
+                    for _, comp in comps
+                    {
+                        if (comp && comp.Has("name") && comp.Has("address")
+                            && InStr(comp["name"], "Targetable"))
+                        {
+                            cAddr := comp["address"]
+                            if this.IsProbablyValidPointer(cAddr)
+                            {
+                                try targetableRaw := this.Mem.ReadUChar(cAddr + PoE2Offsets.Targetable["IsTargetable"])
+                            }
+                            break
+                        }
+                    }
+                }
+
+                reaction := ""
+                if (dc && dc.Has("positioned") && dc["positioned"] && Type(dc["positioned"]) = "Map")
+                    reaction := dc["positioned"].Has("reaction") ? dc["positioned"]["reaction"] : ""
+
+                rarityId    := (dc && dc.Has("rarityId")) ? dc["rarityId"] : ""
+                inBL        := (addr > 0 && blacklist.Has(addr))   ? 1 : 0
+                firstSeenMs := (addr > 0 && firstSeen.Has(addr))   ? (A_TickCount - firstSeen[addr]) : 0
+                tgtDead     := (addr > 0 && tgtDeadMap.Has(addr))  ? tgtDeadMap[addr] : 0
+                inFullScan  := (rawPtr > 0 && fullRawPtrs.Has(rawPtr)) ? 1 : 0
+                everAlive   := (addr > 0 && this._everAliveAddrs.Has(addr))  ? 1 : 0
+                tgtEverOnF  := (addr > 0 && tgtEverOn.Has(addr))   ? 1 : 0
+
+                renderDecoded := 0
+                worldX := ""
+                worldY := ""
+                frozenMs := ""
+                if (dc && dc.Has("render") && dc["render"] && Type(dc["render"]) = "Map")
+                {
+                    renderDecoded := 1
+                    rnd := dc["render"]
+                    if rnd.Has("worldPosition")
+                    {
+                        worldX := Round(rnd["worldPosition"]["x"], 1)
+                        worldY := Round(rnd["worldPosition"]["y"], 1)
+                    }
+                }
+                if (addr > 0 && this._posFrozenSinceTick.Has(addr))
+                    frozenMs := A_TickCount - this._posFrozenSinceTick[addr]
+
+                rows .= now "`t" Format("0x{:X}", addr) "`t" Format("0x{:X}", rawPtr) "`t" path
+                     . "`t" rarityId "`t" isValid "`t" lifeDecoded "`t" HPcur "`t" HPmax
+                     . "`t" isAlive "`t" targetableRaw "`t" targetableDecoded "`t" reaction
+                     . "`t" inBL "`t" firstSeenMs "`t" tgtDead "`t" inFullScan
+                     . "`t" everAlive "`t" tgtEverOnF
+                     . "`t" renderDecoded "`t" worldX "`t" worldY "`t" frozenMs "`n"
+            }
+        }
+        processSample(awakeSample, "awake")
+        processSample(sleepingSample, "sleeping")
+
+        try
+        {
+            FileAppend(statsLine . header . rows, outPath, "UTF-8")
+            return outPath
+        }
+        catch
+            return ""
     }
 
 }

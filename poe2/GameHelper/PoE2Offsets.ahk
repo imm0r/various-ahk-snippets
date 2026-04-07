@@ -78,7 +78,7 @@ class PoE2Offsets
     static StdBucket := Map(
         "Data", 0x00,
         "DataLast", 0x08,
-        "Capacity", 0x18
+        "Capacity", 0x20          ; StdVector(24b)@0x00 + unidentified pointer-sized field (8b)@0x18 → int Capacity@0x20. TODO: replace with the concrete field name/type when confirmed.
     )
 
     static StdVector := Map(
